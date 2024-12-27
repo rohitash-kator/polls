@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 dotenv.config();
 
 const appRoute = require("./src/app");
-const { errorHandler } = require("./src/controllers/errorHandler");
+const { errorHandler } = require("./src/middleware/errorHandler");
 
 const app = express();
 
