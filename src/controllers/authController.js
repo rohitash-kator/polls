@@ -42,10 +42,17 @@ const signup = async (req, res, next) => {
     // Save the user to the database
     await user.save();
 
+    // Generate the JWT token
+    const token = jwt.sign(
+      { id: user._id.toString() },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRY }
+    );
+
     // Send the response
-    res.status(201).json({
+    res.status(200).json({
       message: "User created successfully",
-      user,
+      token,
     });
   } catch (error) {
     // Handle the error
@@ -89,9 +96,9 @@ const login = async (req, res, next) => {
 
     // Generate the JWT token
     const token = jwt.sign(
-      { id: user._id.toString(), email: user.email, role: user.role },
+      { id: user._id.toString() },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: process.env.JWT_EXPIRY }
     );
 
     // Send the response

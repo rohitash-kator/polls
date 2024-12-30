@@ -1,6 +1,11 @@
 const dotenv = require("dotenv");
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors");
+const helmet = require("helmet");
+const xss = require("xss-clean");
+const rateLimit = require("express-rate-limit");
+const morgan = require("morgan");
 
 dotenv.config();
 
@@ -9,7 +14,19 @@ const { errorHandler } = require("./src/middleware/errorHandler");
 
 const app = express();
 
+app.use(cors()); // Enable CORS
+app.use(helmet()); // Add helmet for security headers
+app.use(xss()); // Prevent XSS attacks
 app.use(express.json());
+app.use(morgan("combined"));
+
+// Rate limiting to avoid abuse
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: "Too many requests, please try again later.",
+});
+app.use(limiter);
 
 // Home route
 app.get("/", (req, res) => {
