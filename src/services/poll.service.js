@@ -13,7 +13,7 @@ const createPoll = async (title, questions, currentUser) => {
     if (role !== "Admin") {
       const error = new Error("You are not allowed to create a poll");
       error.statusCode = 403;
-      return next(error);
+      throw error;
     }
 
     // Creating a new poll

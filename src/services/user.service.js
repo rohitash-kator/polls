@@ -115,7 +115,7 @@ const downgradeUser = async (userId, currentUser) => {
   }
 };
 
-const findAll = async (req, res, next) => {
+const findAll = async () => {
   try {
     const users = await User.find().select("-password");
 
