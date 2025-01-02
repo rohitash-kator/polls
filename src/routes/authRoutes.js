@@ -1,5 +1,5 @@
 const express = require("express");
-const { login, signup } = require("../controllers/authController");
+const { login, signup } = require("../controllers/auth.controller");
 const { body } = require("express-validator");
 
 const router = express.Router();
@@ -14,8 +14,11 @@ router.post(
     body("lastName", "Last name is required at least 3 characters")
       .notEmpty()
       .isLength({ min: 3 }),
-    body("email", "A valid email is required").notEmpty().isLength({ min: 3 }),
-    body("password", "Password is required at least 6 alphanumeric characters")
+    body("email", "A valid email is required").notEmpty().isEmail(),
+    body(
+      "password",
+      "Password must be at least 6 characters long and include a number, an uppercase letter, a lowercase letter, and a special character"
+    )
       .notEmpty()
       .isLength({ min: 6 })
       .matches(
@@ -36,8 +39,11 @@ router.post(
 router.post(
   "/login",
   [
-    body("email", "A valid email is required").isEmail().isLength({ min: 3 }),
-    body("password", "Password is required at least 6 alphanumeric characters")
+    body("email", "Please provide a valid email").notEmpty().isEmail(),
+    body(
+      "password",
+      "Password must be at least 6 characters long and include a number, an uppercase letter, a lowercase letter, and a special character"
+    )
       .notEmpty()
       .isLength({ min: 6 })
       .matches(

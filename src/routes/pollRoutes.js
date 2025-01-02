@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const { body } = require("express-validator");
 
 const Question = require("../models/Question");
@@ -11,7 +12,7 @@ const {
   getAllPolls,
   submitPoll,
   getPollResult,
-} = require("../controllers/pollController");
+} = require("../controllers/poll.controller");
 
 const router = express.Router();
 
@@ -59,26 +60,23 @@ router.post(
       .custom(async (answers, { req }) => {
         for (const answer of answers) {
           const { questionId, optionId } = answer;
-          if (!questionId || !optionId) {
-            return Promise.reject(
-              "Answers must have a questionId and an optionId"
-            );
+          if (
+            !mongoose.Types.ObjectId.isValid(questionId) ||
+            !mongoose.Types.ObjectId.isValid(optionId)
+          ) {
+            return Promise.reject("Invalid questionId or optionId");
           }
 
-          if (typeof questionId !== "string") {
-            return Promise.reject("QuestionId must be a string");
-          }
-
-          if (typeof optionId !== "string") {
-            return Promise.reject("OptionId must be a string");
-          }
-
-          const question = await Question.findById(questionId);
+          const question = await Question.findById(questionId).populate(
+            "options"
+          );
           if (!question) {
             return Promise.reject("Invalid question");
           }
 
-          const option = await Option.findById(optionId);
+          const option = question.options.find(
+            (option) => option._id.toString() === optionId
+          );
           if (!option) {
             return Promise.reject("Invalid option");
           }
