@@ -3,48 +3,35 @@ const { validationResult } = require("express-validator");
 const Poll = require("../models/Poll");
 const Question = require("../models/Question");
 const Option = require("../models/Option");
-const User = require("../models/User");
-const PollSubmission = require("../models/pollSubmission");
+const PollSubmission = require("../models/PollSubmission");
 
 // Create a Poll Controller
-const createPoll = async (req, res, next) => {
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    const error = new Error("Validation failed");
-    error.statusCode = 422;
-    error.errors = errors.array();
-    return next(error);
-  }
-
-  const { role } = req.user;
-
-  if (role !== "Admin") {
-    const error = new Error("You are not allowed to create a poll");
-    error.statusCode = 403;
-    return next(error);
-  }
-
-  const { title, questions } = req.body;
-
-  // Creating a new poll
-  const poll = new Poll({
-    title,
-    createdBy: req.user,
-  });
-
+const createPoll = async (title, questions, currentUser) => {
   try {
+    const { role } = currentUser;
+
+    if (role !== "Admin") {
+      const error = new Error("You are not allowed to create a poll");
+      error.statusCode = 403;
+      return next(error);
+    }
+
+    // Creating a new poll
+    const poll = new Poll({
+      title,
+      createdBy: currentUser,
+    });
+
     // Saving the poll to the database
     for (const question of questions) {
       // Loop through the questions
       const newQuestion = new Question({
         question: question.question,
-        poll: poll._id,
       });
 
       for (const option of question.options) {
         // Loop through the options
-        const newOption = new Option({ option, question: newQuestion._id });
+        const newOption = new Option({ option });
 
         // Save the option to the database
         await newOption.save();
@@ -62,149 +49,134 @@ const createPoll = async (req, res, next) => {
 
     // Save the poll to the database
     await poll.save();
+  } catch (err) {
+    // Handle the error
+    const error = new Error(err.message);
+    error.statusCode = err.statusCode || 500;
+    throw err;
+  }
+};
 
-    res.status(201).json({ message: "Poll created successfully" });
-  } catch (error) {
-    if (!error.statusCode) {
-      error.statusCode = 500;
-    }
-    next(error);
+// Get a Poll by ID
+const getPollById = async (id) => {
+  try {
+    const poll = await Poll.findById(id)
+      .populate({ path: "questions", populate: { path: "options" } })
+      .populate({ path: "createdBy", select: "firstName lastName" })
+      .populate({ path: "closedBy", select: "firstName lastName" });
+
+    return poll;
+  } catch (err) {
+    // Handle the error
+    const error = new Error(err.message);
+    error.statusCode = err.statusCode || 500;
+    throw err;
   }
 };
 
 // Close a Poll Controller
-const closePoll = async (req, res, next) => {
-  const { role } = req.user;
-
-  // Check if the user is an admin
-  if (role !== "Admin") {
-    const error = new Error("You are not allowed to close a poll");
-    error.statusCode = 403;
-    return next(error);
-  }
-
-  const { id } = req.params;
-
+const closePoll = async (pollId, currentUser) => {
   try {
-    const poll = await Poll.findById(id);
+    const poll = await getPollById(pollId);
 
     // Check if the poll exists
     if (!poll) {
       const error = new Error("Poll not found");
       error.statusCode = 404;
-      return next(error);
+      throw error;
     }
 
     // Check if the poll is already closed
     if (!poll.isActive) {
       const error = new Error("Poll is already closed");
       error.statusCode = 400;
-      return next(error);
+      throw error;
     }
 
     // Close the poll
     poll.isActive = false;
     poll.closedAt = new Date();
-    poll.closedBy = req.user;
+    poll.closedBy = currentUser;
 
     // Save the poll to the database
     await poll.save();
-
-    res.status(200).json({ message: "Poll closed successfully" });
-  } catch (error) {
-    if (!error.statusCode) {
-      error.statusCode = 500;
-    }
-    next(error);
+  } catch (err) {
+    // Handle the error
+    const error = new Error(err.message);
+    error.statusCode = err.statusCode || 500;
+    throw err;
   }
 };
 
 // Get Active Polls Controller
-const getActivePolls = async (req, res, next) => {
+const getActivePolls = async () => {
   try {
     const polls = await Poll.find({ isActive: true })
       .populate({ path: "questions", populate: { path: "options" } })
-      .populate({ path: "createdBy", select: "name" })
-      .populate({ path: "closedBy", select: "name" });
+      .populate({ path: "createdBy", select: "firstName lastName" })
+      .populate({ path: "closedBy", select: "firstName lastName" });
 
-    console.log(polls);
-    res.status(200).json({ polls });
-  } catch (error) {
-    if (!error.statusCode) {
-      error.statusCode = 500;
-    }
-    next(error);
+    return polls;
+  } catch (err) {
+    // Handle the error
+    const error = new Error(err.message);
+    error.statusCode = err.statusCode || 500;
+    throw err;
   }
 };
 
 // Get All Polls Controller
-const getAllPolls = async (req, res, next) => {
+const getAllPolls = async () => {
   try {
     const polls = await Poll.find()
-      .populate()
       .populate({ path: "questions", populate: { path: "options" } })
-      .populate({ path: "createdBy", select: "name" })
-      .populate({ path: "closedBy", select: "name" });
+      .populate({ path: "createdBy", select: "firstName lastName" })
+      .populate({ path: "closedBy", select: "firstName lastName" });
 
-    res.status(200).json({ polls });
-  } catch (error) {
-    if (!error.statusCode) {
-      error.statusCode = 500;
-    }
-    next(error);
+    return polls;
+  } catch (err) {
+    // Handle the error
+    const error = new Error(err.message);
+    error.statusCode = err.statusCode || 500;
+    throw err;
   }
 };
 
 // Submit a Poll Controller
-const submitPoll = async (req, res, next) => {
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    const error = new Error("Validation failed");
-    error.statusCode = 422;
-    error.errors = errors.array();
-    return next(error);
-  }
-
-  const { id } = req.params;
-  const { answers } = req.body;
-
+const submitPoll = async (pollId, answers, currentUser) => {
   try {
-    const poll = await Poll.findById(id);
+    const poll = await getPollById(pollId);
 
     // Check if the poll exists
     if (!poll) {
       const error = new Error("Poll not found");
       error.statusCode = 404;
-      return next(error);
+      throw error;
     }
 
     // Check if the poll is active
     if (!poll.isActive) {
       const error = new Error("Poll is closed");
       error.statusCode = 400;
-      return next(error);
+      throw error;
     }
 
-    // Check if the user has already submitted the poll
-    const user = req.user;
-
-    const submittedPoll = await Poll.findOne({
-      _id: id,
-      "answers.user": user._id,
+    const submittedPoll = await PollSubmission.findOne({
+      pollId,
+      userId: currentUser._id,
     });
 
     if (submittedPoll) {
       const error = new Error("You have already submitted the poll");
       error.statusCode = 400;
-      return next(error);
+      throw error;
     }
 
     // Check if the user has answered all the questions
     if (answers.length !== poll.questions.length) {
       const error = new Error("You must answer all the questions");
       error.statusCode = 400;
-      return next(error);
+      throw error;
     }
 
     // Save the poll submission
@@ -215,36 +187,30 @@ const submitPoll = async (req, res, next) => {
         optionId: answer.optionId,
       })),
       submittedAt: new Date(),
-      userId: user,
+      userId: currentUser,
     });
 
     await pollSubmission.save();
-
-    res.status(200).json({ message: "Poll submitted successfully" });
-  } catch (error) {
-    if (!error.statusCode) {
-      error.statusCode = 500;
-    }
-    next(error);
+  } catch (err) {
+    // Handle the error
+    const error = new Error(err.message);
+    error.statusCode = err.statusCode || 500;
+    throw err;
   }
 };
 
 // Get Poll Result Controller
-const getPollResult = async (req, res, next) => {
-  const { id } = req.params;
-
+const getPollResult = async (pollId) => {
   try {
-    const poll = await Poll.findById(id)
-      .populate({ path: "questions", populate: { path: "options" } })
-      .populate({ path: "createdBy", select: "name" });
+    const poll = await getPollById(pollId);
 
     if (!poll) {
       const error = new Error("Poll not found");
       error.statusCode = 404;
-      return next(error);
+      throw error;
     }
 
-    const pollSubmissions = await PollSubmission.find({ pollId: id });
+    const pollSubmissions = await PollSubmission.find({ pollId });
 
     const result = poll.questions.map((question) => {
       const questionResult = {
@@ -255,12 +221,12 @@ const getPollResult = async (req, res, next) => {
       return questionResult;
     });
 
-    res.status(200).json({ result });
-  } catch (error) {
-    if (!error.statusCode) {
-      error.statusCode = 500;
-    }
-    next(error);
+    return result;
+  } catch (err) {
+    // Handle the error
+    const error = new Error(err.message);
+    error.statusCode = err.statusCode || 500;
+    throw err;
   }
 };
 

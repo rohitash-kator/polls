@@ -3,11 +3,7 @@ const mongoose = require("mongoose");
 // Create a schema for the Option model
 const optionSchema = new mongoose.Schema(
   {
-    option: String,
-    votes: {
-      type: Number,
-      default: 0,
-    },
+    option: { type: String, required: true },
   },
   { timestamps: true }
 );
