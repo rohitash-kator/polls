@@ -6,7 +6,7 @@ const Option = require("../models/Option");
 const PollSubmission = require("../models/PollSubmission");
 
 // Create a Poll Controller
-const createPoll = async (title, questions, currentUser) => {
+const createPoll = async (title, questions, expiresAt, currentUser) => {
   try {
     const { role } = currentUser;
 
@@ -19,6 +19,8 @@ const createPoll = async (title, questions, currentUser) => {
     // Creating a new poll
     const poll = new Poll({
       title,
+      expiresAt,
+      questions: [],
       createdBy: currentUser,
     });
 
@@ -27,6 +29,8 @@ const createPoll = async (title, questions, currentUser) => {
       // Loop through the questions
       const newQuestion = new Question({
         question: question.question,
+        isRequired: question.isRequired,
+        options: [],
       });
 
       for (const option of question.options) {
@@ -53,7 +57,7 @@ const createPoll = async (title, questions, currentUser) => {
     // Handle the error
     const error = new Error(err.message);
     error.statusCode = err.statusCode || 500;
-    throw err;
+    throw error;
   }
 };
 
@@ -70,7 +74,7 @@ const getPollById = async (id) => {
     // Handle the error
     const error = new Error(err.message);
     error.statusCode = err.statusCode || 500;
-    throw err;
+    throw error;
   }
 };
 
@@ -104,7 +108,7 @@ const closePoll = async (pollId, currentUser) => {
     // Handle the error
     const error = new Error(err.message);
     error.statusCode = err.statusCode || 500;
-    throw err;
+    throw error;
   }
 };
 
@@ -121,7 +125,7 @@ const getActivePolls = async () => {
     // Handle the error
     const error = new Error(err.message);
     error.statusCode = err.statusCode || 500;
-    throw err;
+    throw error;
   }
 };
 
@@ -138,7 +142,7 @@ const getAllPolls = async () => {
     // Handle the error
     const error = new Error(err.message);
     error.statusCode = err.statusCode || 500;
-    throw err;
+    throw error;
   }
 };
 
@@ -161,23 +165,29 @@ const submitPoll = async (pollId, answers, currentUser) => {
       throw error;
     }
 
+    if (new Date(poll.expiresAt) < new Date()) {
+      const error = new Error("Poll is already expired");
+      error.statusCode = 400;
+      throw error;
+    }
+
     const submittedPoll = await PollSubmission.findOne({
       pollId,
       userId: currentUser._id,
     });
 
     if (submittedPoll) {
-      const error = new Error("You have already submitted the poll");
+      const error = new Error("You have already submitted this poll");
       error.statusCode = 400;
       throw error;
     }
 
-    // Check if the user has answered all the questions
-    if (answers.length !== poll.questions.length) {
-      const error = new Error("You must answer all the questions");
-      error.statusCode = 400;
-      throw error;
-    }
+    // // Check if the user has answered all the questions
+    // if (answers.length !== poll.questions.length) {
+    //   const error = new Error("You must answer all this questions");
+    //   error.statusCode = 400;
+    //   throw error;
+    // }
 
     // Save the poll submission
     const pollSubmission = new PollSubmission({
@@ -195,7 +205,7 @@ const submitPoll = async (pollId, answers, currentUser) => {
     // Handle the error
     const error = new Error(err.message);
     error.statusCode = err.statusCode || 500;
-    throw err;
+    throw error;
   }
 };
 
@@ -226,7 +236,7 @@ const getPollResult = async (pollId) => {
     // Handle the error
     const error = new Error(err.message);
     error.statusCode = err.statusCode || 500;
-    throw err;
+    throw error;
   }
 };
 
@@ -249,6 +259,7 @@ const getOptionCount = (option, question, pollSubmissions) => {
 
 module.exports = {
   createPoll,
+  getPollById,
   closePoll,
   getActivePolls,
   getAllPolls,

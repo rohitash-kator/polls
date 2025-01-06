@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const questionSchema = new mongoose.Schema(
   {
     question: String,
+    isRequired: { type: Boolean, default: false },
     options: [
       {
         type: mongoose.Schema.Types.ObjectId,

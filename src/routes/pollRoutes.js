@@ -25,6 +25,15 @@ router.post(
       .notEmpty()
       .isString()
       .isLength({ min: 3 }),
+    body("expiresAt", "Poll must have deadline")
+      .notEmpty()
+      .isDate()
+      .custom((expiresAt, { req }) => {
+        if (new Date(expiresAt) < new Date()) {
+          throw new Error("Poll expiry date must be in future");
+        }
+        return true;
+      }),
     body("questions", "Poll must have at least one question")
       .isArray({ min: 1 })
       .custom((questions, { req }) => {

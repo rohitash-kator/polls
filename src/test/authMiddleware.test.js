@@ -34,7 +34,7 @@ describe("Auth Middleware", () => {
   };
 
   const mockRequest = (token) => ({
-    get: () => token,
+    get: jest.fn().mockReturnValue(token),
   });
 
   test("should return 401 if no token is found", () => {
@@ -106,13 +106,15 @@ describe("Auth Middleware", () => {
 
     // Mock User.findById to return null (simulating an unauthorized user)
     const User = require("../models/User");
-    User.findById = () => ({
-      select: () => null,
+    User.findById = jest.fn().mockReturnValue({
+      select: jest.fn().mockReturnValue(null),
     });
 
     const jwtVerify = jest
       .spyOn(jwt, "verify")
-      .mockImplementation(() => ({ id: "677666d262022e7a2c7b5133" }));
+      .mockImplementation(
+        jest.fn().mockReturnValue({ id: "677666d262022e7a2c7b5133" })
+      );
 
     await authMiddleware(req, res, () => {});
 
@@ -137,13 +139,15 @@ describe("Auth Middleware", () => {
 
     // Mock User.findById to return null (simulating an unauthorized user)
     const User = require("../models/User");
-    User.findById = () => ({
-      select: () => mockUser,
+    User.findById = jest.fn().mockReturnValue({
+      select: jest.fn().mockReturnValue(mockUser),
     });
 
     const jwtVerify = jest
       .spyOn(jwt, "verify")
-      .mockImplementation(() => ({ id: "677666d262022e7a2c7b5133" }));
+      .mockImplementation(
+        jest.fn().mockReturnValue({ id: "677666d262022e7a2c7b5133" })
+      );
 
     await authMiddleware(req, res, () => {});
 
