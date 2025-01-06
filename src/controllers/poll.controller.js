@@ -1,11 +1,5 @@
 const { validationResult } = require("express-validator");
 
-const Poll = require("../models/Poll");
-const Question = require("../models/Question");
-const Option = require("../models/Option");
-const User = require("../models/User");
-const PollSubmission = require("../models/PollSubmission");
-
 const pollService = require("../services/poll.service");
 
 // Create a Poll Controller
@@ -20,10 +14,10 @@ const createPoll = async (req, res, next) => {
   }
 
   const { user } = req;
-  const { title, questions } = req.body;
+  const { title, questions, expiresAt } = req.body;
 
   try {
-    await pollService.createPoll(title, questions, user);
+    await pollService.createPoll(title, questions, expiresAt, user);
 
     res.status(201).json({ message: "Poll created successfully" });
   } catch (err) {

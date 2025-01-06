@@ -15,6 +15,7 @@ const pollSchema = new mongoose.Schema(
     ],
     isActive: { type: Boolean, default: true },
     closedAt: { type: Date },
+    expiresAt: { type: Date },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

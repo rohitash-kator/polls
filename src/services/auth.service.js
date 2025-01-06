@@ -40,7 +40,7 @@ const signup = async (firstName, lastName, email, password) => {
     // Handle the error
     const error = new Error(err.message);
     error.statusCode = err.statusCode || 500;
-    throw err;
+    throw error;
   }
 };
 
@@ -76,7 +76,7 @@ const login = async (email, password) => {
     // Handle the error
     const error = new Error(err.message);
     error.statusCode = err.statusCode || 500;
-    throw err;
+    throw error;
   }
 };
 

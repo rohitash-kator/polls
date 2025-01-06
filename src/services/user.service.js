@@ -1,7 +1,14 @@
 const User = require("../models/User");
+const { isEncrypted } = require("../utils/checkEncryption");
 
 const createUser = async (firstName, lastName, email, password) => {
   try {
+    if (!isEncrypted(password)) {
+      const error = new Error("Password must be encrypted before saving");
+      error.statusCode = 400;
+      throw error;
+    }
+
     const user = new User({
       firstName,
       lastName,
@@ -14,7 +21,10 @@ const createUser = async (firstName, lastName, email, password) => {
 
     return user;
   } catch (err) {
-    throw new Error(error);
+    // Handle the error
+    const error = new Error(err.message);
+    error.statusCode = err.statusCode || 500;
+    throw error;
   }
 };
 
@@ -26,7 +36,7 @@ const findUserByEmail = async (email) => {
     // Handle the error
     const error = new Error(err.message);
     error.statusCode = err.statusCode || 500;
-    throw err;
+    throw error;
   }
 };
 
@@ -38,7 +48,7 @@ const findUserById = async (id) => {
     // Handle the error
     const error = new Error(err.message);
     error.statusCode = err.statusCode || 500;
-    throw err;
+    throw error;
   }
 };
 
@@ -49,7 +59,7 @@ const deleteUserById = async (id) => {
     // Handle the error
     const error = new Error(err.message);
     error.statusCode = err.statusCode || 500;
-    throw err;
+    throw error;
   }
 };
 
@@ -76,7 +86,7 @@ const upgradeUser = async (userId, currentUser) => {
     // Handle the error
     const error = new Error(err.message);
     error.statusCode = err.statusCode || 500;
-    throw err;
+    throw error;
   }
 };
 
@@ -109,7 +119,7 @@ const downgradeUser = async (userId, currentUser) => {
     // Handle the error
     const error = new Error(err.message);
     error.statusCode = err.statusCode || 500;
-    throw err;
+    throw error;
   }
 };
 
@@ -122,7 +132,7 @@ const findAll = async () => {
     // Handle the error
     const error = new Error(err.message);
     error.statusCode = err.statusCode || 500;
-    throw err;
+    throw error;
   }
 };
 
