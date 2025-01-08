@@ -21,7 +21,6 @@ const createPoll = async (req, res, next) => {
 
     res.status(201).json({ message: "Poll created successfully" });
   } catch (err) {
-    console.log(err);
     if (!err.statusCode) {
       err.statusCode = 500;
     }
