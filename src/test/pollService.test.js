@@ -381,6 +381,29 @@ describe("Poll Service", () => {
     ).rejects.toThrow("You have already submitted this poll");
   });
 
+  // Should throw an error if any required question is missed
+  // test("should throw an error if any required question is missed", async () => {
+  //   jest.mock("../services/poll.service", () => ({
+  //     isAllRequiredQuestionsSubmitted: jest.fn().mockReturnValue(false),
+  //   }));
+
+  //   Poll.findById.mockReturnValue({
+  //     populate: jest.fn().mockReturnValue({
+  //       populate: jest.fn().mockReturnValue({
+  //         populate: jest.fn().mockReturnValue(FAKE_POLL_RESPONSE),
+  //       }),
+  //     }),
+  //   });
+
+  //   PollSubmission.findOne.mockReturnValue(null);
+
+  //   await expect(
+  //     submitPoll("fake-poll-id", FAKE_POLL_ANSWERS, DUMMY_USER)
+  //   ).rejects.toThrow(
+  //     "You must submit all the mandatory questions of the poll"
+  //   );
+  // });
+
   test("should submit the poll if active existing poll is submitted first time", async () => {
     Poll.findById.mockReturnValue({
       populate: jest.fn().mockReturnValue({

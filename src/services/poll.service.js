@@ -1,5 +1,3 @@
-const { validationResult } = require("express-validator");
-
 const Poll = require("../models/Poll");
 const Question = require("../models/Question");
 const Option = require("../models/Option");
@@ -182,12 +180,18 @@ const submitPoll = async (pollId, answers, currentUser) => {
       throw error;
     }
 
-    // // Check if the user has answered all the questions
-    // if (answers.length !== poll.questions.length) {
-    //   const error = new Error("You must answer all this questions");
-    //   error.statusCode = 400;
-    //   throw error;
-    // }
+    const requiredQuestions = poll.questions.filter(
+      (question) => question.isRequired
+    );
+
+    // Check if the user has answered all the required questions
+    if (!isAllRequiredQuestionsSubmitted(requiredQuestions, answers)) {
+      const error = new Error(
+        "You must submit all the mandatory questions of the poll"
+      );
+      error.statusCode = 400;
+      throw error;
+    }
 
     // Save the poll submission
     const pollSubmission = new PollSubmission({
@@ -255,6 +259,21 @@ const getOptionCount = (option, question, pollSubmissions) => {
         answer.optionId.toString() === option._id.toString()
     )
   ).length;
+};
+
+const isAllRequiredQuestionsSubmitted = (
+  requiredQuestions,
+  submittedAnswer
+) => {
+  for (let requiredQuestion of requiredQuestions) {
+    const question = submittedAnswer.find(
+      (answer) => answer.questionId === requiredQuestion._id.toString()
+    );
+    if (!question) {
+      return false;
+    }
+  }
+  return true;
 };
 
 module.exports = {

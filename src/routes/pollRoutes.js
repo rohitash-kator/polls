@@ -25,11 +25,18 @@ router.post(
       .notEmpty()
       .isString()
       .isLength({ min: 3 }),
-    body("expiresAt", "Poll must have deadline")
+    body(
+      "expiresAt",
+      "Please provide a valid date in MM-DD-YYYY, MM/DD/YYYY, or MM.DD.YYYY format."
+    )
       .notEmpty()
-      .isDate()
+      .isDate({
+        format: "MM-DD-YYYY",
+        strictMode: true,
+        delimiters: ["-", "/", "."], // Allow multiple delimiters: '-', '/', and '.'
+      })
       .custom((expiresAt, { req }) => {
-        if (new Date(expiresAt) < new Date()) {
+        if (new Date(expiresAt) <= new Date()) {
           throw new Error("Poll expiry date must be in future");
         }
         return true;
