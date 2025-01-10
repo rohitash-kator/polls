@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
 const userService = require("../services/user.service");
+const Blacklist = require("../models/Blacklist");
 
 // Signup Controller
 const signup = async (firstName, lastName, email, password) => {
@@ -80,4 +81,22 @@ const login = async (email, password) => {
   }
 };
 
-module.exports = { signup, login };
+const logout = async (token) => {
+  try {
+    if (!token) {
+      const error = new Error("Please provide a valid token");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const blacklistedToken = new Blacklist({ token });
+    await blacklistedToken.save();
+  } catch (err) {
+    // Handle the error
+    const error = new Error(err.message);
+    error.statusCode = err.statusCode || 500;
+    throw error;
+  }
+};
+
+module.exports = { signup, login, logout };

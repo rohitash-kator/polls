@@ -95,6 +95,13 @@ const closePoll = async (pollId, currentUser) => {
       throw error;
     }
 
+    // Check if the poll is expired
+    if (new Date(poll.expiresAt) < new Date()) {
+      const error = new Error("Poll is already expired");
+      error.statusCode = 400;
+      throw error;
+    }
+
     // Close the poll
     poll.isActive = false;
     poll.closedAt = new Date();
@@ -113,7 +120,10 @@ const closePoll = async (pollId, currentUser) => {
 // Get Active Polls Controller
 const getActivePolls = async () => {
   try {
-    const polls = await Poll.find({ isActive: true })
+    const polls = await Poll.find({
+      isActive: true,
+      expiresAt: { $gt: new Date() },
+    })
       .populate({ path: "questions", populate: { path: "options" } })
       .populate({ path: "createdBy", select: "firstName lastName" })
       .populate({ path: "closedBy", select: "firstName lastName" });
@@ -163,6 +173,7 @@ const submitPoll = async (pollId, answers, currentUser) => {
       throw error;
     }
 
+    // Check if the poll is expired
     if (new Date(poll.expiresAt) < new Date()) {
       const error = new Error("Poll is already expired");
       error.statusCode = 400;
@@ -192,6 +203,9 @@ const submitPoll = async (pollId, answers, currentUser) => {
       error.statusCode = 400;
       throw error;
     }
+
+    poll.totalSubmissions += 1;
+    await poll.save();
 
     // Save the poll submission
     const pollSubmission = new PollSubmission({

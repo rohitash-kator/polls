@@ -70,6 +70,15 @@ const getActivePolls = async (req, res, next) => {
 // Get All Polls Controller
 const getAllPolls = async (req, res, next) => {
   try {
+    const { role } = req.user;
+
+    // Check if the user is an admin
+    if (role !== "Admin") {
+      const error = new Error("You are not allowed to perform this operation");
+      error.statusCode = 403;
+      return next(error);
+    }
+
     const polls = await pollService.getAllPolls();
     res.status(200).json({ polls });
   } catch (err) {
