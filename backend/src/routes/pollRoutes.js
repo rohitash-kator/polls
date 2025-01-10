@@ -71,9 +71,8 @@ router.post(
   "/:id/submit",
   authMiddleware,
   [
-    body("answers", "Answers must be an array of objects")
-      .isArray({ min: 1 })
-      .custom(async (answers, { req }) => {
+    body("answers", "Answers must be an array of objects").custom(
+      async (answers, { req }) => {
         for (const answer of answers) {
           const { questionId, optionId } = answer;
           if (
@@ -97,7 +96,8 @@ router.post(
             return Promise.reject("Invalid option");
           }
         }
-      }),
+      }
+    ),
   ],
   submitPoll
 );

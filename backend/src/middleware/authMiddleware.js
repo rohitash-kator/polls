@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 const User = require("../models/User");
+const Blacklist = require("../models/Blacklist");
 
 const authMiddleware = async (req, res, next) => {
   // Get the token from the header
@@ -12,6 +13,12 @@ const authMiddleware = async (req, res, next) => {
 
   // If the token exists, remove the "Bearer " part
   const token = authHeader.replace("Bearer ", "");
+
+  const blacklistToken = await Blacklist.findOne({ token });
+
+  if (blacklistToken) {
+    return res.status(401).json({ error: "Invalid token provided" });
+  }
 
   if (!token) {
     // If there is no token
@@ -29,6 +36,7 @@ const authMiddleware = async (req, res, next) => {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
+    req.token = token;
     req.user = user;
     next();
   } catch (err) {

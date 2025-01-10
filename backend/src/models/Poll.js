@@ -7,6 +7,7 @@ const pollSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    totalSubmissions: { type: Number, default: 0 },
     questions: [
       {
         type: mongoose.Schema.Types.ObjectId,

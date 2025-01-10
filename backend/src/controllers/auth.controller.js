@@ -1,5 +1,3 @@
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const { validationResult } = require("express-validator");
 const authService = require("../services/auth.service");
 
@@ -64,4 +62,15 @@ const login = async (req, res, next) => {
   }
 };
 
-module.exports = { signup, login };
+const logout = async (req, res, next) => {
+  try {
+    const { token } = req;
+    await authService.logout(token);
+
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { signup, login, logout };
