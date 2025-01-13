@@ -40,6 +40,7 @@ const DUMMY_POLL = {
 const FAKE_POLL_RESPONSE = {
   _id: "677666d262022e7a2c7b5133",
   title: "Test Poll",
+  totalSubmissions: 3,
   questions: [
     {
       isRequired: false,
@@ -266,16 +267,13 @@ describe("Poll Service", () => {
 
   test("should throw error if failed to fetch poll by ID", async () => {
     Poll.findById.mockReturnValue(null);
-    await expect(getPollById("dummy-poll-id")).rejects.toThrow();
+    await expect(getPollById("fake-poll-id")).rejects.toThrow();
   });
 
   test("should throw error if poll not exists which need to be deleted", async () => {
     Poll.findById.mockReturnValue({
-      populate: jest.fn().mockReturnValue({
-        populate: jest.fn().mockReturnValue({
-          populate: jest.fn().mockReturnValue(null),
-        }),
-      }), // Last populate returns null
+      populate: jest.fn().mockReturnValue(null),
+      exec: jest.fn().mockReturnValue(null),
     });
 
     await expect(
@@ -285,13 +283,10 @@ describe("Poll Service", () => {
 
   test("should throw an error if an inactive or closed poll is closed", async () => {
     Poll.findById.mockReturnValue({
-      populate: jest.fn().mockReturnValue({
-        populate: jest.fn().mockReturnValue({
-          populate: jest.fn().mockReturnValue({
-            ...FAKE_POLL_RESPONSE,
-            isActive: false,
-          }),
-        }),
+      populate: jest.fn().mockReturnValue(null),
+      exec: jest.fn().mockReturnValue({
+        ...FAKE_POLL_RESPONSE,
+        isActive: false,
       }),
     });
 
@@ -300,15 +295,12 @@ describe("Poll Service", () => {
     ).rejects.toThrow("Poll is already closed");
   });
 
-  test("should close a poll if an existing poll is closed by an admin", async () => {
+  test("should close a poll if an Admin closes existing poll", async () => {
     Poll.findById.mockReturnValue({
-      populate: jest.fn().mockReturnValue({
-        populate: jest.fn().mockReturnValue({
-          populate: jest.fn().mockReturnValue({
-            ...FAKE_POLL_RESPONSE,
-            save: jest.fn().mockResolvedValue(true),
-          }),
-        }),
+      populate: jest.fn().mockReturnValue(null),
+      exec: jest.fn().mockReturnValue({
+        ...FAKE_POLL_RESPONSE,
+        save: jest.fn().mockResolvedValue(true),
       }),
     });
 
@@ -319,11 +311,8 @@ describe("Poll Service", () => {
 
   test("should throw an error if user try to submit a poll with does not exits", async () => {
     Poll.findById.mockReturnValue({
-      populate: jest.fn().mockReturnValue({
-        populate: jest.fn().mockReturnValue({
-          populate: jest.fn().mockReturnValue(null),
-        }),
-      }),
+      populate: jest.fn().mockReturnValue(null),
+      exec: jest.fn().mockReturnValue(null),
     });
 
     await expect(
@@ -333,13 +322,10 @@ describe("Poll Service", () => {
 
   test("should throw an error if an inactive or closed poll is closed", async () => {
     Poll.findById.mockReturnValue({
-      populate: jest.fn().mockReturnValue({
-        populate: jest.fn().mockReturnValue({
-          populate: jest.fn().mockReturnValue({
-            ...FAKE_POLL_RESPONSE,
-            isActive: false,
-          }),
-        }),
+      populate: jest.fn().mockReturnValue(null),
+      exec: jest.fn().mockReturnValue({
+        ...FAKE_POLL_RESPONSE,
+        isActive: false,
       }),
     });
 
@@ -350,13 +336,10 @@ describe("Poll Service", () => {
 
   test("should throw an error if poll is expired", async () => {
     Poll.findById.mockReturnValue({
-      populate: jest.fn().mockReturnValue({
-        populate: jest.fn().mockReturnValue({
-          populate: jest.fn().mockReturnValue({
-            ...FAKE_POLL_RESPONSE,
-            expiresAt: new Date(new Date().getTime() - 60 * 60 * 1000),
-          }),
-        }),
+      populate: jest.fn().mockReturnValue(null),
+      exec: jest.fn().mockReturnValue({
+        ...FAKE_POLL_RESPONSE,
+        expiresAt: new Date(new Date().getTime() - 60 * 60 * 1000),
       }),
     });
 
@@ -367,11 +350,8 @@ describe("Poll Service", () => {
 
   test("should throw an error if user resubmits a poll", async () => {
     Poll.findById.mockReturnValue({
-      populate: jest.fn().mockReturnValue({
-        populate: jest.fn().mockReturnValue({
-          populate: jest.fn().mockReturnValue(FAKE_POLL_RESPONSE),
-        }),
-      }),
+      populate: jest.fn().mockReturnValue(null),
+      exec: jest.fn().mockReturnValue(FAKE_POLL_RESPONSE),
     });
 
     PollSubmission.findOne.mockReturnValue({ _id: "fake-id" });
@@ -386,7 +366,6 @@ describe("Poll Service", () => {
   //   jest.mock("../services/poll.service", () => ({
   //     isAllRequiredQuestionsSubmitted: jest.fn().mockReturnValue(false),
   //   }));
-
   //   Poll.findById.mockReturnValue({
   //     populate: jest.fn().mockReturnValue({
   //       populate: jest.fn().mockReturnValue({
@@ -394,9 +373,13 @@ describe("Poll Service", () => {
   //       }),
   //     }),
   //   });
-
+  // Poll.findById.mockReturnValue({
+  //   populate: jest.fn().mockReturnValue(null),
+  //   exec: jest
+  //     .fn()
+  //     .mockReturnValue(FAKE_POLL_RESPONSE),
+  // });
   //   PollSubmission.findOne.mockReturnValue(null);
-
   //   await expect(
   //     submitPoll("fake-poll-id", FAKE_POLL_ANSWERS, DUMMY_USER)
   //   ).rejects.toThrow(
@@ -406,10 +389,10 @@ describe("Poll Service", () => {
 
   test("should submit the poll if active existing poll is submitted first time", async () => {
     Poll.findById.mockReturnValue({
-      populate: jest.fn().mockReturnValue({
-        populate: jest.fn().mockReturnValue({
-          populate: jest.fn().mockReturnValue(FAKE_POLL_RESPONSE),
-        }),
+      populate: jest.fn().mockReturnValue(null),
+      exec: jest.fn().mockReturnValue({
+        ...FAKE_POLL_RESPONSE,
+        save: jest.fn().mockResolvedValue(true),
       }),
     });
 
@@ -422,11 +405,8 @@ describe("Poll Service", () => {
 
   test("should throw error if requested to generate result for a non-existing poll", async () => {
     Poll.findById.mockReturnValue({
-      populate: jest.fn().mockReturnValue({
-        populate: jest.fn().mockReturnValue({
-          populate: jest.fn().mockReturnValue(null),
-        }),
-      }),
+      populate: jest.fn().mockReturnValue(null),
+      exec: jest.fn().mockReturnValue(null),
     });
 
     await expect(getPollResult("fake-poll-id")).rejects.toThrow(
@@ -436,11 +416,8 @@ describe("Poll Service", () => {
 
   test("should return result for a existing poll", async () => {
     Poll.findById.mockReturnValue({
-      populate: jest.fn().mockReturnValue({
-        populate: jest.fn().mockReturnValue({
-          populate: jest.fn().mockReturnValue(FAKE_POLL_RESPONSE),
-        }),
-      }),
+      populate: jest.fn().mockReturnValue(null),
+      exec: jest.fn().mockReturnValue(FAKE_POLL_RESPONSE),
     });
 
     PollSubmission.find.mockReturnValue(FAKE_POLL_SUBMISSIONS);
@@ -448,6 +425,9 @@ describe("Poll Service", () => {
     const result = await getPollResult("fake-poll-id");
 
     expect(result).toBeDefined();
-    expect(result.length).toBeDefined();
+    expect(result.pollId).toBeDefined();
+    expect(result.title).toBeDefined();
+    expect(result.totalSubmissions).toBeDefined();
+    expect(result.result.length).toBeDefined();
   });
 });

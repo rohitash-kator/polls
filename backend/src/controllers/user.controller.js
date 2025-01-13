@@ -1,4 +1,3 @@
-const User = require("../models/User");
 const userService = require("../services/user.service");
 
 const upgradeUser = async (req, res, next) => {

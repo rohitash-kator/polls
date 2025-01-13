@@ -14,16 +14,17 @@ const authMiddleware = async (req, res, next) => {
   // If the token exists, remove the "Bearer " part
   const token = authHeader.replace("Bearer ", "");
 
+  if (!token) {
+    // If there is no token
+    return res.status(401).json({ error: "No token provided" });
+  }
+
   const blacklistToken = await Blacklist.findOne({ token });
 
   if (blacklistToken) {
     return res.status(401).json({ error: "Invalid token provided" });
   }
 
-  if (!token) {
-    // If there is no token
-    return res.status(401).json({ error: "No token provided" });
-  }
   try {
     // Verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);

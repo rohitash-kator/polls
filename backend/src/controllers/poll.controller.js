@@ -89,6 +89,32 @@ const getAllPolls = async (req, res, next) => {
   }
 };
 
+const getPollById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const poll = await pollService.getPollById(id, {
+      questions: 1,
+      createdBy: 1,
+      closedBy: 1,
+    });
+
+    // Check if the poll exists
+    if (!poll) {
+      const error = new Error("Poll not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    res.status(200).json({ poll });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
 // Submit a Poll Controller
 const submitPoll = async (req, res, next) => {
   const errors = validationResult(req);
@@ -137,6 +163,7 @@ module.exports = {
   closePoll,
   getActivePolls,
   getAllPolls,
+  getPollById,
   submitPoll,
   getPollResult,
 };
