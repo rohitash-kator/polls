@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const { body } = require("express-validator");
 
 const Question = require("../models/Question");
-const Option = require("../models/Option");
 const { authMiddleware } = require("../middleware/authMiddleware");
 const {
   createPoll,
@@ -12,6 +11,7 @@ const {
   getAllPolls,
   submitPoll,
   getPollResult,
+  getPollById,
 } = require("../controllers/poll.controller");
 
 const router = express.Router();
@@ -65,6 +65,9 @@ router.get("/active", authMiddleware, getActivePolls);
 
 // Get All Polls
 router.get("/", authMiddleware, getAllPolls);
+
+// Get All Polls
+router.get("/:id", authMiddleware, getPollById);
 
 // Submit a Poll
 router.post(

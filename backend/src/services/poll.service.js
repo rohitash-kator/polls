@@ -60,12 +60,24 @@ const createPoll = async (title, questions, expiresAt, currentUser) => {
 };
 
 // Get a Poll by ID
-const getPollById = async (id) => {
+const getPollById = async (id, fieldsToBePopulated) => {
+  const { questions, createdBy, closedBy } = fieldsToBePopulated;
   try {
-    const poll = await Poll.findById(id)
-      .populate({ path: "questions", populate: { path: "options" } })
-      .populate({ path: "createdBy", select: "firstName lastName" })
-      .populate({ path: "closedBy", select: "firstName lastName" });
+    const pollQuery = Poll.findById(id);
+
+    if (questions) {
+      pollQuery.populate({ path: "questions", populate: { path: "options" } });
+    }
+
+    if (createdBy) {
+      pollQuery.populate({ path: "createdBy", select: "firstName lastName" });
+    }
+
+    if (closedBy) {
+      pollQuery.populate({ path: "closedBy", select: "firstName lastName" });
+    }
+
+    const poll = await pollQuery.exec(); // Execute the query
 
     return poll;
   } catch (err) {
@@ -79,7 +91,11 @@ const getPollById = async (id) => {
 // Close a Poll Controller
 const closePoll = async (pollId, currentUser) => {
   try {
-    const poll = await getPollById(pollId);
+    const poll = await getPollById(pollId, {
+      questions: 0,
+      createdBy: 0,
+      closedBy: 0,
+    });
 
     // Check if the poll exists
     if (!poll) {
@@ -157,7 +173,11 @@ const getAllPolls = async () => {
 // Submit a Poll Controller
 const submitPoll = async (pollId, answers, currentUser) => {
   try {
-    const poll = await getPollById(pollId);
+    const poll = await getPollById(pollId, {
+      questions: 1,
+      createdBy: 1,
+      closedBy: 1,
+    });
 
     // Check if the poll exists
     if (!poll) {
@@ -230,7 +250,11 @@ const submitPoll = async (pollId, answers, currentUser) => {
 // Get Poll Result Controller
 const getPollResult = async (pollId) => {
   try {
-    const poll = await getPollById(pollId);
+    const poll = await getPollById(pollId, {
+      questions: 1,
+      createdBy: 1,
+      closedBy: 1,
+    });
 
     if (!poll) {
       const error = new Error("Poll not found");
@@ -246,10 +270,22 @@ const getPollResult = async (pollId) => {
         options: getOptionsResult(question, pollSubmissions),
       };
 
-      return questionResult;
+      const totalSubmissions = questionResult.options.reduce(
+        (acc, curr) => acc + curr.count,
+        0
+      );
+
+      return { ...questionResult, totalSubmissions };
     });
 
-    return result;
+    const pollResult = {
+      pollId: poll._id.toString(),
+      title: poll.title,
+      totalSubmissions: poll.totalSubmissions,
+      result,
+    };
+
+    return pollResult;
   } catch (err) {
     // Handle the error
     const error = new Error(err.message);

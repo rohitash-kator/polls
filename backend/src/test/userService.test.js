@@ -3,10 +3,6 @@ const User = require("../models/User");
 const { isEncrypted } = require("../utils/checkEncryption");
 const {
   createUser,
-  findUserByEmail,
-  findUserById,
-  findAll,
-  deleteUserById,
   upgradeUser,
   downgradeUser,
 } = require("../services/user.service");
