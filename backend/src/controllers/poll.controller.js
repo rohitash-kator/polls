@@ -89,6 +89,7 @@ const getAllPolls = async (req, res, next) => {
   }
 };
 
+// Get Poll by ID
 const getPollById = async (req, res, next) => {
   try {
     const { id } = req.params;

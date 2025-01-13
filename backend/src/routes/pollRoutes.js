@@ -66,7 +66,7 @@ router.get("/active", authMiddleware, getActivePolls);
 // Get All Polls
 router.get("/", authMiddleware, getAllPolls);
 
-// Get All Polls
+// Get Poll by ID
 router.get("/:id", authMiddleware, getPollById);
 
 // Submit a Poll
