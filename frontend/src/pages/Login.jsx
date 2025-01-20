@@ -21,11 +21,10 @@ const passwordRegEx =
 const Login = () => {
   const navigate = useNavigate();
   const isAuthorized = !!localStorage.getItem("authToken");
-
   if (isAuthorized) {
     navigate("/");
   }
-  const { error, login } = useContext(AuthContext);
+  const { login } = useContext(AuthContext);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -149,25 +148,6 @@ const Login = () => {
             }}
           >
             <Box sx={{ width: "100%" }}>
-              {/* Error Message */}
-              <Box
-                sx={{
-                  textAlign: "center",
-                  marginTop: 2,
-                  background: "#d32f2f",
-                  borderRadius: "5px",
-                }}
-              >
-                {error && (
-                  <Typography
-                    variant="body2"
-                    sx={{ color: "#fff", marginTop: 2 }}
-                  >
-                    {error}
-                  </Typography>
-                )}
-              </Box>
-
               <form onSubmit={handleLogin}>
                 {/* Email Field */}
                 <TextField
