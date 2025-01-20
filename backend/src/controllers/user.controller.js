@@ -52,6 +52,21 @@ const deleteUser = async (req, res, next) => {
 };
 
 const getUser = async (req, res, next) => {
+  try {
+    const user = await userService.findUserById(req.user._id);
+    if (!user) {
+      const error = new Error("User not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    res.status(200).json({ user });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getUserById = async (req, res, next) => {
   const { id } = req.params;
 
   try {
@@ -82,5 +97,6 @@ module.exports = {
   downgradeUser,
   deleteUser,
   getUser,
+  getUserById,
   getAllUsers,
 };
