@@ -26,7 +26,7 @@ const Signup = () => {
     navigate("/");
   }
 
-  const { error, signup } = useContext(AuthContext);
+  const { signup } = useContext(AuthContext);
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -178,25 +178,6 @@ const Signup = () => {
             }}
           >
             <Box sx={{ width: "100%" }}>
-              {/* Error Message */}
-              <Box
-                sx={{
-                  textAlign: "center",
-                  marginTop: 2,
-                  background: "#d32f2f",
-                  borderRadius: "5px",
-                }}
-              >
-                {error && (
-                  <Typography
-                    variant="body2"
-                    sx={{ color: "#fff", marginTop: 2 }}
-                  >
-                    {error}
-                  </Typography>
-                )}
-              </Box>
-
               <form onSubmit={handleSignup} style={{ width: "100%" }}>
                 {/* First Name and Last Name */}
                 <Box sx={{ display: "flex", justifyContent: "space-between" }}>

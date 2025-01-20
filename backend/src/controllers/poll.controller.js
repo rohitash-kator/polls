@@ -17,9 +17,14 @@ const createPoll = async (req, res, next) => {
   const { title, questions, expiresAt } = req.body;
 
   try {
-    await pollService.createPoll(title, questions, expiresAt, user);
+    const { pollId } = await pollService.createPoll(
+      title,
+      questions,
+      expiresAt,
+      user
+    );
 
-    res.status(201).json({ message: "Poll created successfully" });
+    res.status(201).json({ message: "Poll created successfully", pollId });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;

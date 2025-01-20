@@ -51,6 +51,8 @@ const createPoll = async (title, questions, expiresAt, currentUser) => {
 
     // Save the poll to the database
     await poll.save();
+
+    return { pollId: poll._id.toString() };
   } catch (err) {
     // Handle the error
     const error = new Error(err.message);

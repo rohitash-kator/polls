@@ -1,38 +1,64 @@
-import { createContext, useCallback, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useMemo } from "react";
 import PropTypes from "prop-types";
 import apiService from "../api/authService";
+import NotificationContext from "./NotificationContext";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [error, setError] = useState(null);
-
-  // Centralized error handling function
-  const handleError = (error) => {
-    return error.response?.data?.message || "An error occurred";
-  };
+  const { addNotification } = useContext(NotificationContext);
 
   // Login function
-  const login = useCallback(async (email, password) => {
-    try {
-      const token = await apiService.login(email, password);
-      localStorage.setItem("authToken", token);
-    } catch (err) {
-      setError(handleError(err));
-      throw new Error();
-    }
-  }, []);
+  const login = useCallback(
+    async (email, password) => {
+      try {
+        const token = await apiService.login(email, password);
+        localStorage.setItem("authToken", token);
+      } catch (error) {
+        const validationErrors = error?.response?.data?.errors;
+        if (validationErrors?.length > 0) {
+          validationErrors?.map((err) => {
+            addNotification(err?.msg, "error");
+          });
+        } else {
+          addNotification(
+            error?.response?.data?.message ||
+              error?.message ||
+              "Oops, Something went wrong!",
+            "error"
+          );
+        }
+        throw new Error();
+      }
+    },
+    [addNotification]
+  );
 
   // Signup function
-  const signup = useCallback(async (userData) => {
-    try {
-      const token = await apiService.signup(userData);
-      localStorage.setItem("authToken", token);
-    } catch (err) {
-      setError(handleError(err));
-      throw new Error();
-    }
-  }, []);
+  const signup = useCallback(
+    async (userData) => {
+      try {
+        const token = await apiService.signup(userData);
+        localStorage.setItem("authToken", token);
+      } catch (error) {
+        const validationErrors = error?.response?.data?.errors;
+        if (validationErrors?.length > 0) {
+          validationErrors?.map((err) => {
+            addNotification(err?.msg, "error");
+          });
+        } else {
+          addNotification(
+            error?.response?.data?.message ||
+              error?.message ||
+              "Oops, Something went wrong!",
+            "error"
+          );
+        }
+        throw new Error();
+      }
+    },
+    [addNotification]
+  );
 
   // Logout function
   const logout = useCallback(async () => {
@@ -42,15 +68,27 @@ export const AuthProvider = ({ children }) => {
         await apiService.logout();
       }
       localStorage.removeItem("authToken");
-    } catch (err) {
-      setError(handleError(err));
+    } catch (error) {
+      const validationErrors = error?.response?.data?.errors;
+      if (validationErrors?.length > 0) {
+        validationErrors?.map((err) => {
+          addNotification(err?.msg, "error");
+        });
+      } else {
+        addNotification(
+          error?.response?.data?.message ||
+            error?.message ||
+            "Oops, Something went wrong!",
+          "error"
+        );
+      }
       throw new Error();
     }
-  }, []);
+  }, [addNotification]);
 
   const contextValue = useMemo(
-    () => ({ login, signup, logout, error }),
-    [error, login, signup, logout]
+    () => ({ login, signup, logout }),
+    [login, signup, logout]
   );
 
   return (
