@@ -1,0 +1,37 @@
+@if (poll) {
+<div class="poll-form-container">
+  <h2>{{ poll.title }}</h2>
+
+  <form (ngSubmit)="onSubmitPoll()">
+    @for (question of poll.questions; track question._id) {
+    <mat-card class="question-card">
+      <mat-card-content class="question__content">
+        <mat-label> {{ question.question }} </mat-label>
+        <mat-radio-group
+          [name]="question._id"
+          [required]="question.isRequired"
+          class="question__option_group"
+        >
+          @for (option of question.options; track option._id) {
+          <mat-radio-button
+            [value]="option._id"
+            (change)="onOptionChange(question._id, option._id)"
+            class="question__option"
+          >
+            {{ option.option }}
+          </mat-radio-button>
+          }
+        </mat-radio-group>
+      </mat-card-content>
+    </mat-card>
+    }
+
+    <div class="poll-action">
+      <button mat-flat-button  color="success" type="submit">Submit Poll</button>
+    </div>
+  </form>
+</div>
+
+} @else {
+<p style="text-align: center; margin: 5rem 0">Poll doesn't exist</p>
+}

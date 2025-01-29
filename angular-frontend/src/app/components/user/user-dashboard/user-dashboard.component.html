@@ -1,0 +1,15 @@
+<div class="dashboard-container">
+  @if (polls.length > 0) { @for (poll of polls; track poll._id) {
+  <div class="polls-list">
+    <div class="poll-card">
+      <h3>{{ poll.title }}</h3>
+      <span class="spacer"></span>
+      <button mat-raised-button color="primary" (click)="onViewPoll(poll._id)">
+        View Poll
+      </button>
+    </div>
+  </div>
+  } } @else {
+  <p style="text-align: center; margin: 1rem 0;">No live polls available at the moment.</p>
+  }
+</div>

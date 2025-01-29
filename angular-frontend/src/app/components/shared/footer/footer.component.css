@@ -1,0 +1,13 @@
+.footer-toolbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 3rem;
+    background-color: #c9d0ff3a;
+    font-size: 14px;
+    border-top-right-radius: 0.5rem;
+    border-top-left-radius: 0.5rem;
+}
+
+.spacer {
+    flex: 1 1 auto;
+}

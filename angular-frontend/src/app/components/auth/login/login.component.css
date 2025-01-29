@@ -1,0 +1,22 @@
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    padding-top: 1rem;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+mat-card {
+    width: 300px;
+    padding: 20px;
+}
+
+.login-actions {
+    margin-top: 20px;
+}

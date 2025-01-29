@@ -1,0 +1,23 @@
+.dashboard-container {
+    padding: 20px
+}
+
+.polls-list {
+    display: flex;
+    flex-direction: column;
+    margin: 1rem 0;
+}
+
+.poll-card {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    padding: 0 1rem;
+}
+
+.spacer {
+    flex: 1 1 auto;
+}

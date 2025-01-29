@@ -1,0 +1,23 @@
+<mat-toolbar color="primary" class="nav-toolbar">
+  <button mat-button routerLink="/" class="logo">Poll App</button>
+  <!-- @if (isAdmin) { -->
+  <!-- Admin section visible only for admins -->
+  <ng-container>
+    <button mat-button routerLink="/admin">Admin Dashboard</button>
+  </ng-container>
+  <!-- }@else { -->
+  <!-- User section visible only for users -->
+  <ng-container>
+    <button mat-button routerLink="/user">User Dashboard</button>
+  </ng-container>
+  <!-- } -->
+
+  <span class="spacer"></span>
+
+  <!-- @if(isLoggedIn) { -->
+  <button mat-button routerLink="/login">Login</button>
+  <button mat-button routerLink="/signup">Signup</button>
+  <!-- } @else { -->
+  <button mat-button>Profile</button>
+  <!-- } -->
+</mat-toolbar>

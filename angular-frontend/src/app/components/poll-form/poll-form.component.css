@@ -1,0 +1,34 @@
+.poll-form-container {
+    background-color: rgba(240, 248, 255, 0.719);
+    padding: 20px;
+    margin: 0.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 1px 3px #00000005;
+}
+
+.poll-form-container h2 {
+    text-align: center;
+}
+
+.question-card {
+    margin-bottom: 0.5rem;
+    background-color: rgba(252, 232, 207, 0.226);
+}
+
+
+.question__option_group {
+    display: flex;
+    flex-direction: column;
+}
+
+
+
+
+.poll-action {
+    text-align: right;
+}
+
+
+.poll-action button {
+    padding: 0 2rem;
+}
