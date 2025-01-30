@@ -1,0 +1,22 @@
+.not-found-card {
+    max-width: 600px;
+    margin: 4rem auto;
+    padding: 5rem;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.171);
+}
+
+.mat-card-header{
+    margin: auto;
+    color: red;
+}
+
+
+mat-card-title {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+button {
+    margin-top: 2rem;
+}

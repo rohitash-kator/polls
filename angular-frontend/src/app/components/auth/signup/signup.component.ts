@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-signup',
+  standalone: true,
   imports: [
     FormsModule,
     MatButtonModule,

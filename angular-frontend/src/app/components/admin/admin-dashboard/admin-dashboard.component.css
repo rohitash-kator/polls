@@ -1,0 +1,94 @@
+button {
+    border-radius: 0.5rem;
+}
+
+.admin-dashboard {
+    margin: 1rem 0 0 0;
+    padding: 0 0.5rem;
+}
+
+.admin-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0;
+}
+
+.admin-header button {
+    color: #fff;
+    background-color: green;
+}
+
+
+
+.polls {
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 6px #0000004d;
+}
+
+.polls h3 {
+    text-align: center;
+    font-size: 1.5rem;
+    margin: 0;
+    padding: 0.5rem;
+    border-radius: 0.5rem 0.5rem 0 0;
+    /* Combined top-left and top-right */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.274);
+    background-color: rgba(0, 255, 76, 0.164);
+    /* Green background for active polls */
+}
+
+.closed-polls h3,
+.expired-polls h3 {
+    background-color: rgba(255, 0, 0, 0.123);
+    /* Red background for closed/expired polls */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.274);
+    /* Optional: If you want to maintain the border style */
+}
+
+
+
+.poll-list__item {
+    margin: 0.25rem 0 0 0;
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 6px #3b522c2f;
+    padding: 2rem;
+
+}
+
+.poll-list__item:hover {
+    background-color: #2f00ff0c;
+}
+
+.poll-list__item__content {
+    margin: 0.5rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.poll-title {
+    display: flex;
+    justify-content: space-between;
+}
+
+.poll-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    align-content: center !important;
+    flex-wrap: wrap;
+}
+
+.poll-info button {
+    margin-left: 1rem;
+}
+
+.fallback {
+    text-align: center;
+}

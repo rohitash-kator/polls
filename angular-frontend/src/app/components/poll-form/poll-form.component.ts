@@ -9,6 +9,7 @@ import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-poll-form',
+  standalone: true,
   imports: [MatButtonModule, MatCardModule, MatFormFieldModule, MatRadioModule, FormsModule],
   templateUrl: './poll-form.component.html',
   styleUrl: './poll-form.component.css',

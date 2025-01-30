@@ -1,1 +1,100 @@
-<p>admin-dashboard works!</p>
+<div class="admin-dashboard">
+  <div class="admin-header">
+    <h2>Admin Dashboard</h2>
+    <button mat-raised-button color="accent" (click)="createPoll()">
+      Create Poll
+    </button>
+  </div>
+  <div>
+    <!-- Active Polls -->
+    <div class="polls active-polls">
+      <h3>Active Polls</h3>
+      @if(activePolls.length > 0){
+      <mat-list class="poll-list">
+        @for (poll of activePolls; track poll._id) {
+        <mat-list-item class="poll-list__item">
+          <div class="poll-list__item__content">
+            <div class="poll-title">
+              <span>{{ poll.title }}</span>
+            </div>
+            <div class="poll-info">
+              <span>Total Responses: {{ poll.totalSubmissions }} </span>
+              <button
+                mat-raised-button
+                color="warn"
+                (click)="closePoll(poll._id)"
+              >
+                Close Poll
+              </button>
+            </div>
+          </div>
+        </mat-list-item>
+        }
+      </mat-list>
+      } @else {
+      <h4 class="fallback">No Active poll found!</h4>
+      }
+    </div>
+
+    <!-- Closed Polls -->
+    <div class="polls closed-polls">
+      <h3>Closed Polls</h3>
+      @if(closedPolls.length > 0){
+      <mat-list class="poll-list">
+        @for (poll of closedPolls; track poll._id) {
+        <mat-list-item class="poll-list__item">
+          <div class="poll-list__item__content">
+            <div class="poll-title">
+              <span>{{ poll.title }}</span>
+            </div>
+            <div class="poll-info">
+              <span>Total Responses: {{ poll.totalSubmissions }} </span>
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="viewPollResult(poll._id)"
+              >
+                View Result
+              </button>
+            </div>
+          </div>
+        </mat-list-item>
+        }
+      </mat-list>
+      } @else {
+      <h4 class="fallback">No Closed poll found!</h4>
+      }
+    </div>
+
+    <!-- Expired Polls -->
+    <div class="polls expired-polls">
+      <h3>Expired Polls</h3>
+
+      @if(expiredPolls.length > 0){
+      <mat-list class="poll-list">
+        @for (poll of expiredPolls; track poll._id) {
+        <mat-list-item class="poll-list__item">
+          <div class="poll-list__item__content">
+            <div class="poll-title">
+              <span>{{ poll.title }}</span>
+            </div>
+            <div class="poll-info">
+              <span>Total Responses: {{ poll.totalSubmissions }} </span>
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="viewPollResult(poll._id)"
+              >
+                View Result
+              </button>
+            </div>
+          </div>
+        </mat-list-item>
+        }
+      </mat-list>
+      } @else {
+      <h4 class="fallback">No Expired poll found!</h4>
+      }
+    </div>
+  </div>
+</div>
