@@ -1,7 +1,7 @@
 <div class="admin-dashboard">
   <div class="admin-header">
     <h2>Admin Dashboard</h2>
-    <button mat-raised-button color="accent" (click)="createPoll()">
+    <button mat-raised-button color="accent" (click)="onCreatePoll()">
       Create Poll
     </button>
   </div>
@@ -22,7 +22,7 @@
               <button
                 mat-raised-button
                 color="warn"
-                (click)="closePoll(poll._id)"
+                (click)="onClosePoll(poll._id)"
               >
                 Close Poll
               </button>
@@ -52,7 +52,7 @@
               <button
                 mat-raised-button
                 color="primary"
-                (click)="viewPollResult(poll._id)"
+                (click)="onViewPollResult(poll._id)"
               >
                 View Result
               </button>
@@ -83,7 +83,7 @@
               <button
                 mat-raised-button
                 color="primary"
-                (click)="viewPollResult(poll._id)"
+                (click)="onViewPollResult(poll._id)"
               >
                 View Result
               </button>

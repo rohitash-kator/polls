@@ -1,0 +1,134 @@
+<div class="poll-container">
+  <h2 style="text-align: center">Create New Poll</h2>
+  <form
+    [formGroup]="pollForm"
+    (ngSubmit)="onSubmitCreateForm()"
+    (reset)="initiatePoll()"
+  >
+    <mat-form-field appearance="fill">
+      <mat-label>Poll Title</mat-label>
+      <input matInput formControlName="title" placeholder="Enter poll title" />
+    </mat-form-field>
+
+    <mat-form-field class="example-full-width">
+      <mat-label>Poll Expiry (Date)</mat-label>
+      <input
+        matInput
+        [matDatepicker]="picker"
+        formControlName="expiresAt"
+        placeholder="Enter expiration date (MM-DD-YYYY)"
+      />
+      <mat-hint>MM/DD/YYYY</mat-hint>
+      <mat-datepicker-toggle
+        matIconSuffix
+        [for]="picker"
+      ></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <div formArrayName="questions">
+      @for (question of questions.controls; track $index; let
+      questionIndex=$index) {
+      <mat-card
+        class="question-card"
+        appearance="outlined"
+        [formGroupName]="questionIndex"
+      >
+        <mat-card-header>
+          <mat-card-title-group>
+            <mat-card-title>Question {{ questionIndex + 1 }}</mat-card-title>
+            <span>
+              Required:
+              <mat-slide-toggle handle-height formControlName="isRequired" />
+            </span>
+          </mat-card-title-group>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-form-field appearance="fill">
+            <mat-label>Question</mat-label>
+            <input
+              matInput
+              formControlName="question"
+              placeholder="Enter Question"
+            />
+          </mat-form-field>
+          <div formArrayName="options">
+            @for (option of getOptions(questionIndex).controls; track $index;
+            let optionIndex=$index) {
+            <div [formGroupName]="optionIndex">
+              <mat-form-field appearance="fill">
+                <mat-label>Option {{ optionIndex + 1 }}</mat-label>
+                <input
+                  matInput
+                  placeholder="Provide Option"
+                  formControlName="option"
+                />
+                @if (getOptions(questionIndex).controls.length > 2) {
+                <button
+                  type="button"
+                  class="btn-option__delete"
+                  matSuffix
+                  mat-icon-button
+                  [disabled]="getOptions(questionIndex).controls.length <= 2"
+                  (click)="removeOption(questionIndex, optionIndex)"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+                }
+              </mat-form-field>
+            </div>
+            }
+          </div>
+        </mat-card-content>
+        <mat-card-footer>
+          <button
+            mat-raised-button
+            type="button"
+            (click)="addOption(questionIndex)"
+          >
+            <mat-icon>add</mat-icon> Option
+          </button>
+          @if (questions.controls.length > 1) {
+          <button
+            mat-raised-button
+            type="button"
+            class="btn-question___delete"
+            color="warn"
+            [disabled]="questions.controls.length <= 1"
+            (click)="removeQuestion(questionIndex)"
+          >
+            <mat-icon>delete</mat-icon> Question
+          </button>
+          }
+        </mat-card-footer>
+      </mat-card>
+      }
+    </div>
+
+    <div class="poll-actions">
+      <span>
+        <button
+          mat-raised-button
+          type="button"
+          color="primary"
+          (click)="onAddQuestion()"
+        >
+          <mat-icon>add</mat-icon> Question
+        </button>
+      </span>
+      <span>
+        <button mat-raised-button type="reset" color="primary">
+          Reset Poll
+        </button>
+        <button
+          mat-raised-button
+          type="submit"
+          color="primary"
+          class="btn-poll__submit"
+        >
+          Create Poll
+        </button>
+      </span>
+    </div>
+  </form>
+</div>

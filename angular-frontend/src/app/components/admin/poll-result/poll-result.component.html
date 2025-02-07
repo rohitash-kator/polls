@@ -1,0 +1,33 @@
+@if (chartData) {
+<h2 class="center">{{ pollResult()?.title }}</h2>
+<mat-divider />
+<div class="chart-grid">
+  @for (data of chartData; track $index) {
+  <mat-card appearance="outlined" class="card responsive-card">
+    <mat-card-header>
+      <mat-card-title class="card-header__title">
+        {{ data.question }}
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <apx-chart
+        [series]="data.chartOptions.series"
+        [chart]="data.chartOptions.chart"
+        [labels]="data.chartOptions.labels"
+        [responsive]="data.chartOptions.responsive"
+      ></apx-chart>
+    </mat-card-content>
+    <mat-card-footer class="card-footer">
+      <ul style="list-style: disc">
+        @for (option of data.options; track $index) {
+        <li>Option {{ $index + 1 }}: {{ option }}</li>
+        }
+      </ul>
+      <mat-chip>Responses: {{ data.responses }}</mat-chip>
+    </mat-card-footer>
+  </mat-card>
+  }
+</div>
+} @else {
+<h4 class="no-result-message center">No Result found!!</h4>
+}

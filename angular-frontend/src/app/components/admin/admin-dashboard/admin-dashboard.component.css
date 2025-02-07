@@ -5,6 +5,7 @@ button {
 .admin-dashboard {
     margin: 1rem 0 0 0;
     padding: 0 0.5rem;
+    width: 100%;
 }
 
 .admin-header {

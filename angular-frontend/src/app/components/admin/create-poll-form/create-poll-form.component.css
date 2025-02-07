@@ -1,0 +1,110 @@
+.poll-container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 0.5rem 2rem 1rem 2rem;
+    background-color: #f1ededb7;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    margin: 0.5rem 0;
+    font-size: 1.8rem;
+    color: #333;
+}
+
+.mat-mdc-form-field {
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+.mat-mdc-card {
+    margin: 0.5rem;
+    padding: 1rem;
+    background-color: #f5f0f069;
+}
+
+.mat-mdc-card-header {
+    padding: 1rem;
+    border-radius: 0.25px;
+    font-size: medium;
+}
+
+.mat-mdc-card-title-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mat-mdc-card-title {
+    font-weight: 500;
+    font-size: 1.2rem;
+}
+
+.mat-mdc-card-subtitle {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+
+.mat-mdc-card-content {
+    padding: 16px;
+    border-radius: 4px;
+}
+
+.poll-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.poll-actions span button {
+    margin: 0 0.5rem;
+}
+
+
+.mat-mdc-slide-toggle {
+    margin-top: 10px;
+}
+
+input[matInput] {
+    font-size: 1rem;
+}
+
+::ng-deep .mat-mdc-text-field-wrapper {
+    background-color: #f7f6f68c !important;
+}
+
+
+.mat-mdc-icon {
+    margin-right: 5px;
+}
+
+.mat-mdc-form-field mat-label {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.mat-mdc-card-footer {
+    display: flex;
+    justify-content: space-between;
+}
+
+.btn-option__delete:not(:disabled) {
+    color: red;
+}
+
+.btn-question___delete:not(:disabled) {
+    color: white;
+    background: red;
+}
+
+button {
+    border-radius: 0.25rem;
+}
+
+
+.btn-poll__submit {
+    color: white;
+    background-color: #066e06d8;
+}

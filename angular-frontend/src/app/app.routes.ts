@@ -6,6 +6,8 @@ import { UserDashboardComponent } from './components/user/user-dashboard/user-da
 import { PollFormComponent } from './components/poll-form/poll-form.component';
 import { NotFoundErrorComponent } from './components/shared/not-found-error/not-found-error.component';
 import { ProfileComponent } from './components/shared/profile/profile.component';
+import { CreatePollFormComponent } from './components/admin/create-poll-form/create-poll-form.component';
+import { PollResultComponent } from './components/admin/poll-result/poll-result.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -14,6 +16,8 @@ export const routes: Routes = [
   { path: 'user', component: UserDashboardComponent },
   { path: 'poll/:pollId', component: PollFormComponent },
   { path: 'profile', component: ProfileComponent },
+  { path: 'admin/create', component: CreatePollFormComponent },
+  { path: 'admin/poll/result/:pollId', component: PollResultComponent },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', component: NotFoundErrorComponent },
 ];

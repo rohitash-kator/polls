@@ -1203,10 +1203,10 @@ export class AdminDashboardComponent implements OnInit {
         __v: 0,
       },
     ];
-    this.loadPolls();
+    this.onLoadPolls();
   }
 
-  loadPolls(): void {
+  onLoadPolls(): void {
     const currentDate = new Date();
 
     // Active polls are those that are both active and not expired
@@ -1223,20 +1223,20 @@ export class AdminDashboardComponent implements OnInit {
     this.closedPolls = this.polls.filter((poll) => !poll.isActive);
   }
 
-  closePoll(pollId: string): void {
+  onClosePoll(pollId: string): void {
     const pollIndex = this.polls.findIndex((poll) => poll._id === pollId);
 
     if (pollIndex > -1) {
       this.polls[pollIndex].isActive = false;
-      this.loadPolls();
+      this.onLoadPolls();
     }
   }
 
-  createPoll(): void {
+  onCreatePoll(): void {
     this.router.navigate(['/admin/create']);
   }
 
-  viewPollResult(pollId: string): void {
+  onViewPollResult(pollId: string): void {
     this.router.navigate(['/admin/poll/result', pollId]);
   }
 }

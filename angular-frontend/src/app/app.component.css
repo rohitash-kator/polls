@@ -1,92 +1,30 @@
-/* General Reset to remove margins and padding */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-/* Make sure the navbar and footer span full width */
-app-navbar,
-app-footer {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-/* Center content inside the navbar or footer */
-app-navbar {
-    color: white;
-}
-
-app-footer {
-    color: white;
-    margin-top: 20px;
-    /* Optional: Add space between content and footer */
-}
-
-/* Main content styling */
 .main {
-    min-height: calc(100vh - 120px);
-    /* Adjust based on height of navbar and footer */
-    padding: 20px;
-    flex: 1;
-}
-
-/* Ensure that the footer is at the bottom */
-body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
 }
 
-/* Mobile View Handling */
-@media (max-width: 768px) {
+.container {
+    flex: 1;
+}
 
-    /* Stack items vertically in the navbar */
+@media (max-width: 768px) {
     app-navbar {
         flex-direction: column;
         align-items: flex-start;
-        /* Align items to the start */
     }
 
-    /* Adjust padding for smaller screens */
-    app-navbar,
-    app-footer {
-        padding: 15px 10px;
-        /* Adjust padding for mobile */
-    }
-
-    /* For the main content area */
     .main {
         padding: 15px;
-        /* Adjust padding for mobile */
-    }
-
-    /* Footer adjustments on mobile */
-    app-footer {
-        text-align: center;
-        /* Center text on mobile */
     }
 }
 
-/* Very small screens (e.g., mobile portrait) */
 @media (max-width: 480px) {
-
-    /* Further adjust navbar on extra small screens */
-    app-navbar {
-        padding: 10px 5px;
-    }
-
-    /* Adjust font sizes for small screens */
-    app-navbar,
-    app-footer {
-        font-size: 14px;
-        /* Reduce font size */
-    }
-
     .main {
         font-size: 16px;
-        /* Adjust content font size */
     }
+}
+
+*:focus {
+    outline: 3px solid #0078d4;
 }
