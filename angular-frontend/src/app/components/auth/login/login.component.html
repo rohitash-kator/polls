@@ -5,12 +5,12 @@
     </mat-card-header>
 
     <mat-card-content>
-      <form (ngSubmit)="onLogin()">
+      <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
         <mat-form-field appearance="fill">
           <mat-label>Email</mat-label>
           <input
             matInput
-            [(ngModel)]="enteredEmail"
+            formControlName="email"
             name="email"
             type="email"
             required
@@ -21,7 +21,7 @@
           <mat-label>Password</mat-label>
           <input
             matInput
-            [(ngModel)]="enteredPassword"
+            formControlName="password"
             name="password"
             type="password"
             required
@@ -29,7 +29,14 @@
         </mat-form-field>
 
         <div class="login-actions">
-          <button mat-raised-button color="primary" type="submit">Login</button>
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="loginForm.invalid"
+          >
+            Login
+          </button>
         </div>
       </form>
     </mat-card-content>

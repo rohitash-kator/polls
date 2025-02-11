@@ -1,108 +1,12 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 
-import {
-  ApexNonAxisChartSeries,
-  ApexResponsive,
-  ApexChart,
-  NgApexchartsModule,
-} from 'ng-apexcharts';
-
-interface ChartData {
-  question: string;
-  options: string[];
-  responses: number;
-  chartOptions: ChartOptions;
-}
-
-interface ChartOptions {
-  series: ApexNonAxisChartSeries;
-  chart: ApexChart;
-  responsive: ApexResponsive[];
-  labels: string[];
-}
-
-interface PollResult {
-  pollId: string; // Unique identifier for the poll result
-  title: string;
-  totalSubmissions: number;
-  result: PollQuestionResult[];
-}
-
-interface PollQuestionResult {
-  question: string;
-  options: PollOptionResult[];
-  totalSubmissions: number;
-}
-
-interface PollOptionResult {
-  option: string;
-  count: number;
-}
-
-const POLL_RESULT: PollResult = {
-  pollId: '6799d5064c63bf5ea190f3c2',
-  title: 'Lifestyle Preferences',
-  totalSubmissions: 50,
-  result: [
-    {
-      question: 'How often do you exercise?',
-      options: [
-        { option: 'Every day', count: 10 },
-        { option: 'A few times a week', count: 15 },
-        { option: 'Once a week', count: 8 },
-        { option: 'Rarely', count: 12 },
-        { option: 'Never', count: 5 },
-      ],
-      totalSubmissions: 50,
-    },
-    {
-      question: 'What is your favorite type of cuisine?',
-      options: [
-        { option: 'Italian', count: 8 },
-        { option: 'Chinese', count: 12 },
-        { option: 'Mexican', count: 10 },
-        { option: 'Indian', count: 5 },
-        { option: 'American', count: 8 },
-        { option: 'Mediterranean', count: 7 },
-      ],
-      totalSubmissions: 50,
-    },
-    {
-      question: 'Which season do you enjoy the most?',
-      options: [
-        { option: 'Spring', count: 10 },
-        { option: 'Summer', count: 20 },
-        { option: 'Fall', count: 12 },
-        { option: 'Winter', count: 8 },
-      ],
-      totalSubmissions: 50,
-    },
-    {
-      question: 'How do you prefer to spend your weekends?',
-      options: [
-        { option: 'Relaxing at home', count: 12 },
-        { option: 'Going out with friends', count: 10 },
-        { option: 'Outdoor activities', count: 8 },
-        { option: 'Working on personal projects', count: 10 },
-        { option: 'Traveling', count: 10 },
-      ],
-      totalSubmissions: 50,
-    },
-    {
-      question: 'Which of the following best describes your sleep habits?',
-      options: [
-        { option: 'I sleep 8 or more hours every night', count: 15 },
-        { option: 'I sleep 6-7 hours a night', count: 20 },
-        { option: 'I sleep 4-5 hours a night', count: 10 },
-        { option: 'I rarely get enough sleep', count: 5 },
-      ],
-      totalSubmissions: 50,
-    },
-  ],
-};
+import { NgApexchartsModule } from 'ng-apexcharts';
+import { ApiService } from '../../../services/api.service';
+import { ActivatedRoute } from '@angular/router';
+import { ChartData, PollQuestionResult, PollResult } from '../../../data-types';
 
 @Component({
   selector: 'app-poll-result',
@@ -116,18 +20,39 @@ const POLL_RESULT: PollResult = {
   templateUrl: './poll-result.component.html',
   styleUrls: ['./poll-result.component.css'],
 })
-export class PollResultComponent implements OnInit {
+export class PollResultComponent {
   pollResult = signal<PollResult | undefined>(undefined);
   chartData: ChartData[] = [];
+  pollId: string | null;
+  submissions: number = 0;
 
-  constructor() {}
+  constructor(
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly apiService: ApiService
+  ) {
+    this.pollId = this.activatedRoute.snapshot.paramMap.get('pollId');
+    if (this.pollId) {
+      this.apiService.getPollResult(this.pollId).subscribe({
+        next: (response: any) => {
+          console.log(
+            'Poll Result Fetched Successfully. Response: ',
+            response?.result
+          );
 
-  ngOnInit(): void {
-    this.pollResult.set(POLL_RESULT);
-    this.processResultToPieChart();
+          const result = response?.result;
+          this.pollResult.set(response.result);
+          this.submissions = result.totalSubmissions;
+          this.processResultToPieChart();
+        },
+        error: (error) => {
+          console.error('Error while fetching poll result: ', error);
+        },
+      });
+    }
   }
 
   processResultToPieChart(): void {
+    console.log('From ProcessResultToPieChart', this.pollResult());
     this.pollResult()?.result.forEach((question: PollQuestionResult) => {
       const options: string[] = [];
       const labels: string[] = [];
@@ -168,5 +93,7 @@ export class PollResultComponent implements OnInit {
 
       this.chartData.push(data);
     });
+
+    console.log('this.chartData', this.chartData);
   }
 }

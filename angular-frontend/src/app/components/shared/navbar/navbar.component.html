@@ -1,23 +1,24 @@
 <mat-toolbar color="primary" class="nav-toolbar">
   <button mat-button routerLink="/" class="logo">Poll App</button>
-  <!-- @if (isAdmin) { -->
+  @if(isLoggedIn){ @if (isAdmin) {
   <!-- Admin section visible only for admins -->
   <ng-container>
     <button mat-button routerLink="/admin">Admin Dashboard</button>
   </ng-container>
-  <!-- }@else { -->
+  }@else {
   <!-- User section visible only for users -->
   <ng-container>
     <button mat-button routerLink="/user">User Dashboard</button>
   </ng-container>
-  <!-- } -->
+  } }
 
   <span class="spacer"></span>
 
-  <!-- @if(isLoggedIn) { -->
+  @if(!isLoggedIn) {
   <button mat-button routerLink="/login">Login</button>
   <button mat-button routerLink="/signup">Signup</button>
-  <!-- } @else { -->
+  } @else {
   <button mat-button routerLink="/profile">Profile</button>
-  <!-- } -->
+  <button mat-button (click)="onLogout()">Logout</button>
+  }
 </mat-toolbar>

@@ -1,11 +1,17 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
 
-import { FormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { ApiService } from '../../../services/api.service';
 
 @Component({
   selector: 'app-login',
@@ -16,18 +22,43 @@ import { MatButtonModule } from '@angular/material/button';
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
+    ReactiveFormsModule,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
 export class LoginComponent {
-  enteredEmail: string = '';
-  enteredPassword: string = '';
+  loginForm: FormGroup;
+  errorMessage = '';
 
-  constructor(private readonly router: Router) {}
+  constructor(
+    private readonly formBuilder: FormBuilder,
+    private readonly apiService: ApiService
+  ) {
+    this.loginForm = this.formBuilder.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: [
+        '',
+        [Validators.required, Validators.min(6), Validators.maxLength(32)],
+      ],
+    });
+  }
 
   onLogin() {
-    console.log('Login Clicked');
-    this.router.navigate(['/signup']);
+    if (!this.loginForm.valid) {
+      console.error('Check your details!!');
+      return;
+    }
+    console.log("From Login Component", this.loginForm.value);
+    this.apiService.login(this.loginForm.value).subscribe(
+      {
+        next: (user) => {
+          console.log("Logged In User", user);
+        },
+        error: (error) => {
+          console.error(error);
+        },
+      }
+    );
   }
 }

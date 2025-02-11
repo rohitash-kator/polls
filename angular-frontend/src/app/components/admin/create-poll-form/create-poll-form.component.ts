@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
 import {
   FormArray,
@@ -16,6 +16,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { ApiService } from '../../../services/api.service';
+import { CreatePoll } from '../../../data-types';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-create-poll-form',
@@ -38,7 +41,11 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 export class CreatePollFormComponent {
   pollForm: FormGroup = new FormGroup({});
 
-  constructor(private readonly formBuilder: FormBuilder) {
+  constructor(
+    private readonly formBuilder: FormBuilder,
+    private readonly router: Router,
+    private readonly apiService: ApiService
+  ) {
     this.initiatePoll();
   }
 
@@ -86,13 +93,6 @@ export class CreatePollFormComponent {
     option.push(this.createOption());
   }
 
-  onSubmitCreateForm(): void {
-    console.log(this.pollForm.value);
-    if (this.pollForm.valid) {
-      console.log('Poll created: ', this.pollForm.value);
-    }
-  }
-
   removeQuestion(index: number): void {
     this.questions.removeAt(index);
   }
@@ -102,5 +102,56 @@ export class CreatePollFormComponent {
     const question = this.questions.at(questionIndex);
     const options = question.get('options') as FormArray;
     options.removeAt(optionIndex);
+  }
+
+  onSubmitCreateForm(): void {
+    if (!this.pollForm.valid) {
+      return;
+    }
+
+    console.log(
+      'Poll created From Poll Create Form Component: ',
+      this.pollForm.value
+    );
+
+    const { title, expiresAt, questions } = this.pollForm.value;
+    const expiresAtDate = new Date(expiresAt);
+    const currentDate = new Date();
+
+    if (expiresAtDate < currentDate) {
+      console.log('Please provide the expiry date in the future.');
+      return;
+    }
+
+    const formattedExpiryDate = this.formatDate(expiresAtDate);
+
+    const createdPoll: CreatePoll = {
+      title,
+      expiresAt: formattedExpiryDate,
+      questions: this.formatQuestions(questions),
+    };
+
+    this.apiService.createPoll(createdPoll).subscribe({
+      next: (response: any) => {
+        console.log('Response From Poll Create Form Component: ', response);
+        this.router.navigate(['/']);
+      },
+      error: (error) => {
+        console.error('From Poll Create Form Component: ', error);
+      },
+    });
+  }
+
+  private formatDate(date: Date): string {
+    const datePipe = new DatePipe('en-US');
+    return datePipe.transform(date, 'MM-dd-yyyy')!;
+  }
+
+  private formatQuestions(questions: any[]): any[] {
+    return questions.map((question) => ({
+      question: question.question,
+      isRequired: question.isRequired,
+      options: question.options.map((option: any) => option.option),
+    }));
   }
 }

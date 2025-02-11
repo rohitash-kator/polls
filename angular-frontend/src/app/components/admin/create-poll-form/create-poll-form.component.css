@@ -102,9 +102,3 @@ input[matInput] {
 button {
     border-radius: 0.25rem;
 }
-
-
-.btn-poll__submit {
-    color: white;
-    background-color: #066e06d8;
-}

@@ -10,14 +10,25 @@ import { CreatePollFormComponent } from './components/admin/create-poll-form/cre
 import { PollResultComponent } from './components/admin/poll-result/poll-result.component';
 
 export const routes: Routes = [
+  // Routes for unauthenticated users (guest routes like login/signup)
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
+
+  // Admin routes with role-based protection (only for Admin users)
   { path: 'admin', component: AdminDashboardComponent },
-  { path: 'user', component: UserDashboardComponent },
-  { path: 'poll/:pollId', component: PollFormComponent },
-  { path: 'profile', component: ProfileComponent },
   { path: 'admin/create', component: CreatePollFormComponent },
   { path: 'admin/poll/result/:pollId', component: PollResultComponent },
+
+  // User routes with role-based protection (only for User users)
+  { path: 'user', component: UserDashboardComponent },
+  { path: 'user/poll/:pollId', component: PollFormComponent },
+
+  // Profile route (only for authenticated users)
+  { path: 'profile', component: ProfileComponent },
+
+  // Default route (redirect to login page)
   { path: '', redirectTo: '/login', pathMatch: 'full' },
+
+  // Wildcard route (for 404 - not found errors)
   { path: '**', component: NotFoundErrorComponent },
 ];

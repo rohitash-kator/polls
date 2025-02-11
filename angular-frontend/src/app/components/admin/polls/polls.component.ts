@@ -8,5 +8,4 @@ import { Component } from '@angular/core';
   styleUrl: './polls.component.css'
 })
 export class PollsComponent {
-
 }
