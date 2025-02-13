@@ -91,12 +91,12 @@ input[matInput] {
 }
 
 .btn-option__delete:not(:disabled) {
-    color: red;
+    color: #f44336;
 }
 
 .btn-question___delete:not(:disabled) {
     color: white;
-    background: red;
+    background: #f44336;
 }
 
 button {

@@ -13,6 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { ApiService } from '../../../services/api.service';
 import { NotificationsComponent } from '../../shared/notifications/notifications.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -33,10 +34,29 @@ export class LoginComponent {
   errorMessage = '';
 
   constructor(
+    private readonly router: Router,
     private readonly formBuilder: FormBuilder,
     private readonly apiService: ApiService,
     private readonly notification: NotificationsComponent
   ) {
+    this.apiService.currentUser.subscribe({
+      next: (response: any) => {
+        const user = response?.user;
+        if (user) {
+          console.log('User from AuthGuard: ', user);
+          this.router.navigate([user?.role === 'Admin' ? '/admin' : '/user']);
+        } else {
+          this.router.navigate(['/login']);
+        }
+      },
+      error: (error: any) => {
+        console.error('Error initiating current user. Error: ', error);
+        this.notification.openSnackBar({
+          message: 'Error fetching user details. Please try again later.',
+          type: 'error',
+        });
+      },
+    });
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
       password: [

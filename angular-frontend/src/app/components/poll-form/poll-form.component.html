@@ -6,7 +6,12 @@
     @for (question of poll.questions; track question._id) {
     <mat-card class="question-card">
       <mat-card-content class="question__content">
-        <mat-label> {{ question.question }} </mat-label>
+        <mat-label>
+          @if(question.isRequired){
+          <sup style="color: #f44336">*</sup>
+          }
+          {{ question.question }}
+        </mat-label>
         <mat-radio-group
           [name]="question._id"
           [required]="question.isRequired"
@@ -27,7 +32,7 @@
     }
 
     <div class="poll-action">
-      <button mat-flat-button  color="success" type="submit">Submit Poll</button>
+      <button mat-flat-button color="success" type="submit">Submit Poll</button>
     </div>
   </form>
 </div>

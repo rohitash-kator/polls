@@ -192,7 +192,9 @@ export class PollFormComponent {
               });
             } else {
               this.notification.openSnackBar({
-                message: 'Error submitting poll. Please try again.',
+                message:
+                  error.error.message ??
+                  'Error submitting poll. Please try again.',
                 type: 'error',
               });
             }
