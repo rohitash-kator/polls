@@ -5,6 +5,8 @@
 }
 
 .container {
+    margin: auto;
+    width: 80%;
     flex: 1;
 }
 
