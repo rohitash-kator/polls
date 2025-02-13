@@ -7,6 +7,7 @@ import { NgApexchartsModule } from 'ng-apexcharts';
 import { ApiService } from '../../../services/api.service';
 import { ActivatedRoute } from '@angular/router';
 import { ChartData, PollQuestionResult, PollResult } from '../../../data-types';
+import { NotificationsComponent } from '../../shared/notifications/notifications.component';
 
 @Component({
   selector: 'app-poll-result',
@@ -28,31 +29,67 @@ export class PollResultComponent {
 
   constructor(
     private readonly activatedRoute: ActivatedRoute,
-    private readonly apiService: ApiService
+    private readonly apiService: ApiService,
+    private readonly notification: NotificationsComponent
   ) {
     this.pollId = this.activatedRoute.snapshot.paramMap.get('pollId');
     if (this.pollId) {
       this.apiService.getPollResult(this.pollId).subscribe({
         next: (response: any) => {
-          console.log(
-            'Poll Result Fetched Successfully. Response: ',
-            response?.result
-          );
+          
 
           const result = response?.result;
-          this.pollResult.set(response.result);
-          this.submissions = result.totalSubmissions;
-          this.processResultToPieChart();
+
+          if (result) {
+            // Set the poll result in the component
+            this.pollResult.set(result);
+            this.submissions = result.totalSubmissions;
+            // Process and display the result on a pie chart
+            this.processResultToPieChart();
+
+            // Display success notification
+            this.notification.openSnackBar({
+              message: 'Poll results fetched successfully.',
+              type: 'success',
+            });
+          } else {
+            // Handle case when there are no results returned
+            this.notification.openSnackBar({
+              message: 'No results available for this poll.',
+              type: 'error',
+            });
+          }
         },
         error: (error) => {
           console.error('Error while fetching poll result: ', error);
+
+          // Handle different types of errors
+          if (error.status === 404) {
+            // Poll not found or no results available
+            this.notification.openSnackBar({
+              message: 'Poll not found or no results available.',
+              type: 'error',
+            });
+          } else if (error.status === 500) {
+            // Server error
+            this.notification.openSnackBar({
+              message:
+                'An error occurred while fetching poll results. Please try again later.',
+              type: 'error',
+            });
+          } else {
+            // Other unexpected errors
+            this.notification.openSnackBar({
+              message: 'An unexpected error occurred. Please try again.',
+              type: 'error',
+            });
+          }
         },
       });
     }
   }
 
   processResultToPieChart(): void {
-    console.log('From ProcessResultToPieChart', this.pollResult());
     this.pollResult()?.result.forEach((question: PollQuestionResult) => {
       const options: string[] = [];
       const labels: string[] = [];
@@ -94,6 +131,5 @@ export class PollResultComponent {
       this.chartData.push(data);
     });
 
-    console.log('this.chartData', this.chartData);
   }
 }

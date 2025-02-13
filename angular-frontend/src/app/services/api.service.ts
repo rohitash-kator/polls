@@ -1,3 +1,5 @@
+// API Service
+
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
@@ -8,6 +10,7 @@ import {
   PollAnswers,
   SignupCredentials,
 } from '../data-types';
+import { NotificationsComponent } from '../components/shared/notifications/notifications.component';
 
 @Injectable({
   providedIn: 'root',
@@ -16,14 +19,21 @@ export class ApiService {
   private readonly apiUrl = 'http://localhost:5000/api';
   private readonly tokenKey = 'authToken';
   private readonly token: string | null = localStorage.getItem(this.tokenKey);
-
   private readonly currentUserSubject: BehaviorSubject<any> =
     new BehaviorSubject<any>(null);
-  public currentUser: Observable<any> = this.currentUserSubject.asObservable();
+  private readonly isLoggedINSubject: BehaviorSubject<boolean> =
+    new BehaviorSubject<boolean>(this.isUserLoggedIn());
+  private readonly isLoadingSubject: BehaviorSubject<boolean> =
+    new BehaviorSubject<boolean>(false); // Default to false
+
+  currentUser: Observable<any> = this.currentUserSubject.asObservable();
+  isLoggedIn: Observable<boolean> = this.isLoggedINSubject.asObservable();
+  isLoading: Observable<boolean> = this.isLoadingSubject.asObservable();
 
   constructor(
     private readonly httpClient: HttpClient,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly notification: NotificationsComponent
   ) {
     this.token = this.getToken();
 
@@ -32,10 +42,30 @@ export class ApiService {
         next: (user) => {
           console.log('Current User from API Service: ', user);
           this.currentUserSubject.next(user);
+          this.notification.openSnackBar({
+            message: 'Current user details fetched successfully.',
+            type: 'success',
+          });
         },
         error: (error) => {
-          console.error(error);
-          this.logout();
+          console.error('Check for malformed JWT error');
+          if (
+            error.error.error === 'jwt malformed' ||
+            error.error.error === 'jwt expired'
+          ) {
+            this.notification.openSnackBar({
+              message: 'Session expired. Please log in again.',
+              type: 'error',
+            });
+            this.removeToken();
+            this.router.navigate(['/login']);
+          } else {
+            this.notification.openSnackBar({
+              message:
+                'An error occurred while fetching user details. Please try again.',
+              type: 'error',
+            });
+          }
         },
       });
     }
@@ -54,55 +84,52 @@ export class ApiService {
   }
 
   private setToken(token: string): void {
-    console.log('Setting token...');
     localStorage.setItem(this.tokenKey, token);
+    this.isLoggedINSubject.next(true);
   }
 
   private removeToken(): void {
     localStorage.removeItem(this.tokenKey);
+    this.isLoggedINSubject.next(false);
     this.router.navigate(['/login']);
   }
 
   private fetchCurrentUserDetails(): Observable<any> {
     console.log('Fetching user...');
+    const headers = this.setHttpHeader();
     return this.httpClient
-      .get(`${this.apiUrl}/users/currentUser`, {
-        headers: this.setHttpHeader(),
-      })
+      .get(`${this.apiUrl}/users/currentUser`, { headers })
       .pipe(catchError(this.errorHandler));
   }
 
   login(loginCredentials: LoginCredentials): Observable<any> {
-    console.log('Login From API Service: ', loginCredentials);
-
+    this.isLoadingSubject.next(true); // Start loading
     return this.httpClient
       .post(`${this.apiUrl}/auth/login`, loginCredentials)
       .pipe(
         switchMap((response: any) => {
           console.log('Login API Response: ', response);
           const token = response?.token;
-
-          console.log('Token: ', token);
           this.setToken(token);
-
           return this.fetchCurrentUserDetails().pipe(
-            switchMap((userDetails) => {
-              this.currentUserSubject.next(userDetails);
-              return [userDetails];
+            switchMap((response: any) => {
+              this.currentUserSubject.next(response);
+              return [response];
             })
           );
         }),
-        catchError(this.errorHandler)
+        catchError((error) => {
+          this.isLoadingSubject.next(false); // End loading on error
+          return this.errorHandler(error);
+        })
       );
   }
 
   signup(userDetails: SignupCredentials): Observable<any> {
-    console.log('Sign Up From API Service', userDetails);
-
+    this.isLoadingSubject.next(true); // Start loading
     return this.httpClient.post(`${this.apiUrl}/auth/signup`, userDetails).pipe(
       switchMap((response: any) => {
         const token = response?.token;
-
         this.setToken(token);
         return this.fetchCurrentUserDetails().pipe(
           switchMap((userDetails) => {
@@ -111,30 +138,38 @@ export class ApiService {
           })
         );
       }),
-      catchError(this.errorHandler)
+      catchError((error) => {
+        this.isLoadingSubject.next(false); // End loading on error
+        return this.errorHandler(error);
+      })
     );
   }
 
   logout(): Observable<any> {
+    this.isLoadingSubject.next(true); // Start loading
     this.currentUserSubject.next(null);
     return this.httpClient
       .post(`${this.apiUrl}/auth/logout`, {}, { headers: this.setHttpHeader() })
       .pipe(
         switchMap((response: any) => {
-          // Remove the token after the logout request is successful
           this.removeToken();
-          return of(response); // Return the response as an observable
+          this.isLoadingSubject.next(false); // End loading
+          return of(response);
         }),
-        catchError(this.errorHandler)
+        catchError((error) => {
+          this.isLoadingSubject.next(false); // End loading on error
+          return this.errorHandler(error);
+        })
       );
   }
 
   private errorHandler(error: any): Observable<never> {
     console.log('Error in API: ', error);
+    this.isLoadingSubject.next(false); // End loading in case of error
     throw error;
   }
 
-  isLoggedIn(): boolean {
+  isUserLoggedIn(): boolean {
     return !!this.getToken();
   }
 
@@ -143,8 +178,7 @@ export class ApiService {
   }
 
   createPoll(createdPoll: CreatePoll): Observable<any> {
-    console.log('Created poll From API Service', createdPoll);
-
+    this.isLoadingSubject.next(true); // Start loading
     return this.httpClient
       .post(`${this.apiUrl}/polls`, createdPoll, {
         headers: this.setHttpHeader(),
@@ -152,29 +186,35 @@ export class ApiService {
       .pipe(
         switchMap((response: any) => {
           console.log('Created Poll Response: ', response);
-
+          this.isLoadingSubject.next(false); // End loading
           return of(response);
         }),
-        catchError(this.errorHandler)
+        catchError((error) => {
+          this.isLoadingSubject.next(false); // End loading on error
+          return this.errorHandler(error);
+        })
       );
   }
 
   getAllPolls(): Observable<any> {
-    console.log('Getting All Polls');
+    this.isLoadingSubject.next(true); // Start loading
     return this.httpClient
       .get(`${this.apiUrl}/polls`, { headers: this.setHttpHeader() })
       .pipe(
         switchMap((response: any) => {
           console.log('Fetched Poll Response: ', response);
-
+          this.isLoadingSubject.next(false); // End loading
           return of(response);
         }),
-        catchError(this.errorHandler)
+        catchError((error) => {
+          this.isLoadingSubject.next(false); // End loading on error
+          return this.errorHandler(error);
+        })
       );
   }
 
   closePoll(pollId: string): Observable<any> {
-    console.log('Closing a Poll');
+    this.isLoadingSubject.next(true); // Start loading
     return this.httpClient
       .post(
         `${this.apiUrl}/polls/${pollId}/close`,
@@ -186,14 +226,18 @@ export class ApiService {
       .pipe(
         switchMap((response: any) => {
           console.log('Close Poll Response: ', response);
+          this.isLoadingSubject.next(false); // End loading
           return of(response);
         }),
-        catchError(this.errorHandler)
+        catchError((error) => {
+          this.isLoadingSubject.next(false); // End loading on error
+          return this.errorHandler(error);
+        })
       );
   }
 
   getPollResult(pollId: string): Observable<any> {
-    console.log('Getting Poll result');
+    this.isLoadingSubject.next(true); // Start loading
     return this.httpClient
       .get(`${this.apiUrl}/polls/${pollId}/result`, {
         headers: this.setHttpHeader(),
@@ -201,29 +245,35 @@ export class ApiService {
       .pipe(
         switchMap((response: any) => {
           console.log('Fetched Poll Result: ', response);
+          this.isLoadingSubject.next(false); // End loading
           return of(response);
         }),
-        catchError(this.errorHandler)
+        catchError((error) => {
+          this.isLoadingSubject.next(false); // End loading on error
+          return this.errorHandler(error);
+        })
       );
   }
 
   getActivePolls(): Observable<any> {
-    console.log('Getting All Polls');
+    this.isLoadingSubject.next(true); // Start loading
     return this.httpClient
       .get(`${this.apiUrl}/polls/active`, { headers: this.setHttpHeader() })
       .pipe(
         switchMap((response: any) => {
           console.log('Fetched Poll Response: ', response);
-
+          this.isLoadingSubject.next(false); // End loading
           return of(response);
         }),
-        catchError(this.errorHandler)
+        catchError((error) => {
+          this.isLoadingSubject.next(false); // End loading on error
+          return this.errorHandler(error);
+        })
       );
   }
 
   getPollById(pollId: string): Observable<any> {
-    console.log('Getting poll by Poll ID');
-
+    this.isLoadingSubject.next(true); // Start loading
     return this.httpClient
       .get(`${this.apiUrl}/polls/${pollId}`, {
         headers: this.setHttpHeader(),
@@ -231,14 +281,18 @@ export class ApiService {
       .pipe(
         switchMap((response: any) => {
           console.log('Poll fetched successfully: ', response);
+          this.isLoadingSubject.next(false); // End loading
           return of(response);
         }),
-        catchError(this.errorHandler)
+        catchError((error) => {
+          this.isLoadingSubject.next(false); // End loading on error
+          return this.errorHandler(error);
+        })
       );
   }
 
   submitPoll(pollId: string, pollSubmission: PollAnswers): Observable<any> {
-    console.log(pollId, pollSubmission);
+    this.isLoadingSubject.next(true); // Start loading
     return this.httpClient
       .post(`${this.apiUrl}/polls/${pollId}/submit`, pollSubmission, {
         headers: this.setHttpHeader(),
@@ -246,9 +300,13 @@ export class ApiService {
       .pipe(
         switchMap((response: any) => {
           console.log('Poll Submitted Successfully. Response: ', response);
+          this.isLoadingSubject.next(false); // End loading
           return of(response);
         }),
-        catchError(this.errorHandler)
+        catchError((error) => {
+          this.isLoadingSubject.next(false); // End loading on error
+          return this.errorHandler(error);
+        })
       );
   }
 }

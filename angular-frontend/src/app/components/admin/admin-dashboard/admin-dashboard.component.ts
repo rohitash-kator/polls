@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 
 import { Poll } from '../../../data-types';
 import { ApiService } from '../../../services/api.service';
+import { NotificationsComponent } from '../../shared/notifications/notifications.component';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -21,19 +22,24 @@ export class AdminDashboardComponent {
 
   constructor(
     private readonly router: Router,
-    private readonly apiService: ApiService
+    private readonly apiService: ApiService,
+    private readonly notification: NotificationsComponent
   ) {
     this.apiService.getAllPolls().subscribe({
       next: (response: any) => {
-        console.log(
-          'All Poll response from the Admin dashboard component: ',
-          response
-        );
         this.polls = response?.polls;
         this.onLoadPolls();
+        this.notification.openSnackBar({
+          message: 'Polls loaded successfully',
+          type: 'success',
+        });
       },
       error: (error) => {
         console.error('Error Fetching Polls: ', error);
+        this.notification.openSnackBar({
+          message: 'Error fetching polls. Please try again later.',
+          type: 'error',
+        });
       },
     });
   }
@@ -65,15 +71,62 @@ export class AdminDashboardComponent {
     if (pollIndex > -1) {
       this.apiService.closePoll(pollId).subscribe({
         next: (response: any) => {
-          console.log('Poll closed Successfully: ', response);
+          // Update the poll status locally
           this.polls[pollIndex].isActive = false;
           this.onLoadPolls();
+
+          // Display success notification
+          this.notification.openSnackBar({
+            message: 'Poll closed successfully.',
+            type: 'success',
+          });
         },
         error: (error) => {
-          console.log('Error Closing poll: ', error);
+          console.error('Error closing poll: ', error);
+
+          // Handle backend errors
+          if (error.status === 403) {
+            // Unauthorized error (user is not an admin)
+            this.notification.openSnackBar({
+              message: 'You are not allowed to close a poll.',
+              type: 'error',
+            });
+          } else if (error.status === 404) {
+            // Poll not found
+            this.notification.openSnackBar({
+              message: 'Poll not found.',
+              type: 'error',
+            });
+          } else if (error.status === 400) {
+            if (error.error.message === 'Poll is already closed') {
+              // Poll is already closed
+              this.notification.openSnackBar({
+                message: 'Poll is already closed.',
+                type: 'error',
+              });
+            } else if (error.error.message === 'Poll is already expired') {
+              // Poll is expired
+              this.notification.openSnackBar({
+                message: 'Poll is already expired.',
+                type: 'error',
+              });
+            }
+          } else {
+            // Generic error
+            this.notification.openSnackBar({
+              message:
+                'An error occurred while closing the poll. Please try again later.',
+              type: 'error',
+            });
+          }
         },
       });
-      this.onLoadPolls();
+    } else {
+      // Handle case where the poll is not found in the local polls list
+      this.notification.openSnackBar({
+        message: 'Poll not found in the local list.',
+        type: 'error',
+      });
     }
   }
 

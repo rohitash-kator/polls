@@ -1,0 +1,53 @@
+.success-snackbar {
+    background-color: #4caf50 !important;
+    color: #fff;
+}
+
+.error-snackbar {
+    background-color: #f44336 !important;
+    color: #fff;
+}
+
+.info-snackbar {
+    background-color: #2196f3 !important;
+    color: #fff;
+}
+
+.warning-snackbar {
+    background-color: #ff9800 !important;
+    color: #fff;
+}
+
+
+::ng-deep .success-snackbar {
+    background-color: #4caf50 !important;
+    color: #fff !important;
+}
+
+::ng-deep .error-snackbar {
+    background-color: #f44336 !important;
+    color: #fff !important;
+}
+
+::ng-deep .info-snackbar {
+    background-color: #2196f3 !important;
+    color: #fff !important;
+}
+
+::ng-deep .warning-snackbar {
+    background-color: #ff9800 !important;
+    color: #fff !important;
+}
+
+
+
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column-reverse;
+    max-height: 90vh;
+    overflow-y: auto;
+}

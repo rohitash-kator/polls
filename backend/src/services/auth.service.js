@@ -6,7 +6,7 @@ const User = require("../models/User");
 const userService = require("../services/user.service");
 const Blacklist = require("../models/Blacklist");
 
-// Signup Controller
+// Signup Service Method
 const signup = async (firstName, lastName, email, password) => {
   try {
     // Check if the user already exists
@@ -45,7 +45,7 @@ const signup = async (firstName, lastName, email, password) => {
   }
 };
 
-// Login Controller
+// Login Service Method
 const login = async (email, password) => {
   try {
     // Check if the user exists

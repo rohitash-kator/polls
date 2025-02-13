@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ApiService } from '../../../services/api.service';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { NotificationsComponent } from '../notifications/notifications.component';
 
 @Component({
   selector: 'app-profile',
@@ -15,7 +16,8 @@ export class ProfileComponent {
 
   constructor(
     private readonly router: Router,
-    private readonly apiService: ApiService
+    private readonly apiService: ApiService,
+    private readonly notification: NotificationsComponent
   ) {
     this.apiService.currentUser.subscribe({
       next: (response: any) => {
@@ -27,7 +29,11 @@ export class ProfileComponent {
         }
       },
       error: (error: any) => {
-        console.log('Error initiating current user. Error: ', error);
+        console.error('Error initiating current user. Error: ', error);
+        this.notification.openSnackBar({
+          message: 'Error fetching user details. Please try again later.',
+          type: 'error',
+        });
       },
     });
   }

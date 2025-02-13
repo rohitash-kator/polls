@@ -1,14 +1,12 @@
 .nav-toolbar {
-    background-color: #c9d0ff3a;
-    border-bottom-right-radius: 0.5rem;
-    border-bottom-left-radius: 0.5rem;
+    position: relative;
+    z-index: 10;
 }
 
 .spacer {
     flex: 1 1 auto;
 }
 
-.logo {
-    font-weight: bold;
-    font-size: 1.5rem;
+.nav-toolbar mat-button {
+    z-index: 20;
 }

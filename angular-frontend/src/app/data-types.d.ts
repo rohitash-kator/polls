@@ -100,3 +100,8 @@ export interface PollAnswer {
 export interface PollAnswers {
   answers: PollAnswer[];
 }
+
+export interface NotificationData {
+  message: string;
+  type: 'success' | 'error' | 'info' | 'warning';
+}

@@ -15,10 +15,24 @@
   <span class="spacer"></span>
 
   @if(!isLoggedIn) {
-  <button mat-button routerLink="/login">Login</button>
-  <button mat-button routerLink="/signup">Signup</button>
+  <ng-container>
+    <button mat-button routerLink="/login">Login</button>
+  </ng-container>
+  <ng-container>
+    <button mat-button routerLink="/signup">Signup</button>
+  </ng-container>
   } @else {
-  <button mat-button routerLink="/profile">Profile</button>
-  <button mat-button (click)="onLogout()">Logout</button>
+  <ng-container>
+    <button mat-button routerLink="/profile">
+      <mat-icon>account_circle</mat-icon>
+      Profile
+    </button>
+  </ng-container>
+  <ng-container>
+    <button mat-button (click)="onLogout()">
+      <mat-icon>exit_to_app</mat-icon>
+      Log out
+    </button>
+  </ng-container>
   }
 </mat-toolbar>
